@@ -18,6 +18,7 @@ from app.job_outreach.repositories import (
 from app.job_outreach.search import run_search, guess_company_name_from_title
 from app.job_outreach.email_discovery import (
     research_company, discover_email, gather_company_snippets, gather_contact_snippets,
+    fetch_emails_from_website, classify_emails,
 )
 from app.job_outreach.email_generator import generate_application_email
 from app.job_outreach.settings_store import (
@@ -203,8 +204,21 @@ async def run_one_cycle() -> dict:
                     domain = (research or {}).get("domain")
                     website = (research or {}).get("official_website")
 
-                    contact_snippets = await gather_contact_snippets(company_name, domain)
-                    discovered = discover_email(company_name, domain, contact_snippets)
+                    # Primary path: read the company's own website directly
+                    # (homepage/contact/about/careers) and classify whatever
+                    # real emails are actually published there — far more
+                    # reliable than guessing from generic search snippets.
+                    # Falls back to the snippet-based AI extraction only if
+                    # the site has no domain, is unreachable, or has no
+                    # visible email at all.
+                    discovered = None
+                    if domain:
+                        website_emails = await fetch_emails_from_website(domain)
+                        if website_emails:
+                            discovered = classify_emails(company_name, domain, website_emails)
+                    if not discovered or not (discovered or {}).get("email"):
+                        contact_snippets = await gather_contact_snippets(company_name, domain)
+                        discovered = discover_email(company_name, domain, contact_snippets)
                 except Exception:
                     logger.exception("JOB_OUTREACH: research/discovery failed for %r", company_name)
                     await company_repo.update(company["company_id"], {"research_status": "FAILED"})

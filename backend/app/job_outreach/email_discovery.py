@@ -5,6 +5,18 @@ discover_email), reusing the shared app.integrations.openai_client
 structured_completion() and app.integrations.web_search.search() helpers
 (both generic, provider-level integrations safe to share across modules).
 
+PRIMARY discovery path is now fetch_emails_from_website(): once
+research_company() has confidently identified a company's actual official
+website, this reads that site's own pages directly (homepage, /contact,
+/about, /careers — a plain public GET, never a login/scrape of gated
+content) and extracts any visible email addresses with a regex. This is far
+more reliable than guessing an email from generic search-result snippets
+(the previous sole approach), which was occasionally matching an email from
+a completely unrelated page (e.g. a YouTube video that happened to mention
+the company's name) to the wrong company. discover_email() (the
+snippet-based AI classifier) is kept as a fallback for when the website
+fetch finds no email at all.
+
 Same official-email-only filter rule as the main system: only email_type
 GENERIC or FOUNDER are ever accepted as an outreach recipient — see
 app.job_outreach.models.ACCEPTED_EMAIL_TYPES and service.py, which is where
@@ -12,8 +24,33 @@ the actual accept/reject decision is enforced (this module only classifies).
 """
 from __future__ import annotations
 
+import logging
+import re
+
+import httpx
+
 from app.integrations.openai_client import structured_completion
 from app.integrations.web_search import search
+
+logger = logging.getLogger("job_outreach.email_discovery")
+
+# Common paths, tried in order, most-likely-to-list-a-contact-email first.
+_CONTACT_PATHS = ["", "/contact", "/contact-us", "/about", "/about-us", "/careers"]
+
+_EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
+
+# Emails that are clearly not a real business contact even though they match
+# the regex — placeholder/example addresses that show up in boilerplate
+# templates, tracking pixels, etc.
+_JUNK_EMAIL_PATTERNS = (
+    "example.com", "yourdomain", "domain.com", "sentry.io", "wixpress.com",
+    ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp",
+)
+
+
+def _is_junk_email(email: str) -> bool:
+    lowered = email.lower()
+    return any(p in lowered for p in _JUNK_EMAIL_PATTERNS)
 
 COMPANY_SCHEMA = {
     "type": "object",
@@ -94,6 +131,66 @@ def discover_email(company_name: str, domain: str | None, search_snippets: list[
         user_prompt=user_prompt,
         schema=EMAIL_SCHEMA,
         schema_name="job_outreach_email_discovery",
+    )
+
+
+async def fetch_emails_from_website(domain: str) -> list[str]:
+    """Fetches the company's own homepage plus a few common pages
+    (/contact, /about, /careers) and extracts any visible email addresses
+    via regex. Plain public GET requests only — no login, no scraping behind
+    auth/CAPTCHA, same rule as everywhere else in this system. Returns a
+    deduplicated list (order preserved, homepage-first) of candidate emails,
+    or an empty list if the site is unreachable or none are found — never
+    raises, since a single company's site being down shouldn't crash the
+    whole search cycle."""
+    if not domain:
+        return []
+    found: list[str] = []
+    seen: set[str] = set()
+    async with httpx.AsyncClient(timeout=10, follow_redirects=True,
+                                  headers={"User-Agent": "Mozilla/5.0 (compatible; JobOutreachBot/1.0)"}) as client:
+        for path in _CONTACT_PATHS:
+            for scheme in ("https://", "http://"):
+                url = f"{scheme}{domain}{path}"
+                try:
+                    resp = await client.get(url)
+                except httpx.HTTPError:
+                    continue
+                if resp.status_code >= 400:
+                    continue
+                for match in _EMAIL_RE.findall(resp.text):
+                    if _is_junk_email(match) or match.lower() in seen:
+                        continue
+                    seen.add(match.lower())
+                    found.append(match)
+                break  # https worked (or returned a real response) — skip http fallback for this path
+            if len(found) >= 5:
+                break  # enough candidates gathered — no need to keep crawling more pages
+    logger.info("JOB_OUTREACH_WEBSITE_FETCH domain=%r emails_found=%d", domain, len(found))
+    return found
+
+
+def classify_emails(company_name: str, domain: str | None, candidate_emails: list[str]) -> dict | None:
+    """AI-classifies a short list of emails actually found on the company's
+    own website (via fetch_emails_from_website) into the same
+    {email, email_type, email_source_url, email_confidence} shape as
+    discover_email(), picking the single best one to use as the outreach
+    recipient. Far more reliable than discover_email() because every
+    candidate is a real address that was actually present on the company's
+    own site, not inferred from a search snippet."""
+    if not candidate_emails:
+        return None
+    listing = "\n".join(f"- {e}" for e in candidate_emails)
+    user_prompt = (
+        f"Company name: {company_name}\nDomain: {domain or 'unknown'}\n\n"
+        f"Email addresses found on this company's own website:\n{listing}\n\n"
+        f"Pick the single best one to use as an outreach contact and classify it."
+    )
+    return structured_completion(
+        system_prompt=EMAIL_SYSTEM_PROMPT,
+        user_prompt=user_prompt,
+        schema=EMAIL_SCHEMA,
+        schema_name="job_outreach_email_classification",
     )
 
 
