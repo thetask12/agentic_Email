@@ -8,8 +8,8 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Botivate Outreach Command Center",
-  description: "AI job intelligence, outreach, follow-up, and reply tracking for Botivate Services LLP",
+  title: "Job Outreach",
+  description: "Personal job-application search and outreach automation",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

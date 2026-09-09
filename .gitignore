@@ -4,6 +4,8 @@
 .env.*.local
 *.pem
 *.key
+job-outreach-system-*.json
+*-service-account*.json
 
 # Python
 backend/.venv/
@@ -37,3 +39,5 @@ Thumbs.db
 # Apps Script local sync (clasp)
 apps-script/.clasp.json
 apps-script/.claspignore
+apps-script-job-outreach/.clasp.json
+apps-script-job-outreach/.claspignore

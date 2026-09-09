@@ -1,4 +1,4 @@
-// Typed fetch client for the Botivate backend API.
+// Typed fetch client for the Job Outreach backend API.
 //
 // In the combined single-container deployment (Render), the frontend and
 // backend share one origin — FastAPI proxies non-API requests to Next.js

@@ -1,15 +1,16 @@
 # =============================================================================
-# Botivate AI Job Intelligence & Outreach System — single-image production build
+# Job Outreach System — single-image production build
 # =============================================================================
-# Renders as ONE Render Web Service: this image runs both the FastAPI backend
-# and the Next.js frontend in a single container, listening on the single
-# public $PORT Render assigns. A tiny Python entrypoint (start.py) starts
-# uvicorn (FastAPI) on an internal port and the Next.js standalone server on
-# another internal port, and FastAPI itself reverse-proxies every non-/api
-# request through to Next.js — so only one port is ever exposed externally.
+# Renders as ONE Web Service (Render or any Docker host): this image runs
+# both the FastAPI backend and the Next.js frontend in a single container,
+# listening on the single public $PORT assigned. A tiny Python entrypoint
+# (start.py) starts uvicorn (FastAPI) on an internal port and the Next.js
+# standalone server on another internal port, and FastAPI itself
+# reverse-proxies every non-/api request through to Next.js — so only one
+# port is ever exposed externally.
 #
-# Build:  docker build -t botivate-app .
-# Run:    docker run -p 8000:8000 --env-file .env botivate-app
+# Build:  docker build -t job-outreach-app .
+# Run:    docker run -p 8000:8000 --env-file .env job-outreach-app
 # =============================================================================
 
 # ---------- Stage 1: build the Next.js frontend ----------

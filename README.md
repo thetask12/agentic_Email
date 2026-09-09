@@ -1,37 +1,35 @@
-# Botivate AI Job Intelligence, Outreach & Follow-up Command Center
+# Job Outreach System
 
-A complete job-discovery → company-research → lead-qualification →
-cold-outreach → email-queue → send-tracking → reply-tracking →
-follow-up-management → sales-analytics platform for Botivate Services LLP.
+A personal job-application automation system for Prabhat Kumar Singh: it
+searches the web for Indian (and remote-international) companies hiring for
+AI Engineer / Agentic AI Developer / AI Developer roles, discovers each
+company's official contact email, and sends a short cold-application email
+with a resume attached — one email per company, no follow-ups, no CRM.
 
-See `System.txt` for the full original specification this system
-implements, and `CLAUDE.md` for the current build status.
+See `CLAUDE.md` for full architecture, non-negotiable rules, and current
+build/deployment status.
 
 ## What this is
-- A **FastAPI backend** that discovers jobs (via Google Custom Search,
-  never scraping login/CAPTCHA-gated pages), researches companies, finds
-  public business emails, scores automation opportunity with OpenAI,
-  drafts personalized cold emails, and exposes a full REST API for a CRM
-  frontend.
-- A **Next.js frontend** — the "Sales Control Center" — showing every job,
-  company, lead, email, reply, and follow-up with full visibility into
-  what was sent, what wasn't, what got a reply, and what's due next.
-- A **Google Sheets** database (one spreadsheet, ~20 tabs — see
-  `docs/sheet-schema.md`) as the system of record.
-- A **Google Apps Script** project that is the *only* component that
-  actually sends email or reads Gmail — it runs the email queue worker,
-  the follow-up worker, and the reply scanner, all against the same
-  spreadsheet.
+- A **FastAPI backend** (`backend/app/job_outreach/`) that searches for job
+  postings via Tavily, researches companies, discovers + classifies official
+  contact emails with OpenAI (only `GENERIC`/`FOUNDER` addresses accepted),
+  generates a short application email, and queues it for sending.
+- A **Google Sheet** database (`docs/job-outreach-schema.md` — 8 tabs) as
+  the system of record, including the Start/Stop automation flag.
+- A **Google Apps Script** project (`apps-script-job-outreach/`) — the only
+  component that actually sends email — which processes the queue and
+  attaches the resume PDF from Google Drive.
+- A **Next.js frontend** with a single dashboard page showing automation
+  status and Start/Stop controls.
 
 ## Project structure
 ```
-backend/        FastAPI app (Python)
-frontend/       Next.js 16 app (TypeScript, Tailwind)
-apps-script/    Google Apps Script project (paste into script.google.com)
-docs/           Setup guides, architecture, schema reference
-tests/          (backend/tests/) pytest suite
-Dockerfile      Single-image build serving both frontend + backend
-start.py        Process supervisor used by the Docker image
+backend/                    FastAPI app (Python) — job_outreach/ is the only module
+frontend/                   Next.js app (TypeScript, Tailwind)
+apps-script-job-outreach/   Google Apps Script project (paste into script.google.com, or `clasp push`)
+docs/job-outreach-schema.md Sheet schema reference
+Dockerfile                  Single-image build serving both frontend + backend
+start.py                    Process supervisor used by the Docker image
 ```
 
 ## Quick start (local development)
@@ -40,7 +38,7 @@ start.py        Process supervisor used by the Docker image
 ```bash
 cd backend
 pip install -r requirements.txt
-cp ../.env.example ../.env   # fill in values — see docs/ below
+cp ../.env.example ../.env   # fill in real values
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -53,53 +51,17 @@ npm install
 npm run dev
 ```
 
-**Tests:**
-```bash
-cd backend
-pytest
-```
-
 ## Production deployment
-Render, single Docker Web Service (both frontend and backend in one
-container, one exposed port). See **`docs/deployment.md`** for exact
-steps — no `render.yaml` is used; the service is configured directly in
-the Render dashboard against the root `Dockerfile`.
-
-## Setup guides (read in this order for a first-time deployment)
-1. `docs/google-sheets.md` — create the spreadsheet + service account.
-2. `docs/search.md` — Google Custom Search (job discovery).
-3. `docs/openai.md` — OpenAI API key.
-4. `docs/gmail.md` + `docs/apps-script.md` — deploy the Apps Script
-   project that actually sends mail and scans replies.
-5. `docs/deployment.md` — deploy the combined app to Render.
-
-## Deep-dive docs
-- `docs/architecture.md` — full pipeline + component map.
-- `docs/sheet-schema.md` — exact tab/column/enum reference.
-- `docs/email-tracking.md` — what send/delivery/open tracking is (and
-  honestly is not) available, and why.
-- `docs/follow-ups.md`, `docs/replies.md` — the two most detail-sensitive
-  subsystems (user-controlled scheduling, reply-triggered cancellation,
-  idempotent reply detection).
-- `docs/security.md` — secrets handling, sanitization, suppression.
-- `docs/troubleshooting.md` — common issues and where to look.
+Docker, single Web Service (both frontend and backend in one container, one
+exposed port) — deployed directly from the root `Dockerfile` against
+whatever host you point it at (Render, a VPS, etc.). No `render.yaml` is
+used.
 
 ## Safety defaults (do not change casually)
-- `EMAIL_TEST_MODE=true` — every outgoing email is redirected to
-  `TEST_EMAIL` regardless of the real recipient, until you deliberately
-  flip this for a real campaign.
-- `AUTO_SEND=false`, `AUTO_REPLY=false`, `AUTO_FOLLOWUP_AUTOMATION=false`
-  (in the `SETTINGS` sheet) — every email requires human approval before
-  queueing, AI never auto-sends a reply, and follow-up dates are always
-  user-chosen unless you explicitly build/enable automation on top of the
-  documented hook.
-- `MOCK_MODE=false` — no fabricated data is ever shown; empty states mean
-  exactly that.
-
-## Known limitations
-See `docs/troubleshooting.md` and `docs/email-tracking.md`. In short: some
-job portals block automated access (this system never bypasses
-login/CAPTCHA — it only reads publicly indexed search results); email
-delivery/open tracking is not reliably available via Gmail and is never
-faked; Gmail sending quotas and Apps Script execution limits apply; Google
-Sheets has scalability limits at high volume.
+- `JOB_OUTREACH_EMAIL_TEST_MODE=true` — every outgoing email is redirected
+  to `JOB_OUTREACH_TEST_EMAIL` regardless of the real recipient, until
+  deliberately turned off for real sending.
+- Only official `GENERIC`/`FOUNDER` company emails are ever used as an
+  outreach recipient — `HR`/`DEPARTMENT`/`UNKNOWN` addresses are rejected.
+- A company is never emailed twice (suppression list).
+- No fabricated delivery/open/click status is ever shown.
