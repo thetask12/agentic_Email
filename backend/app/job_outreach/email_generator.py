@@ -19,30 +19,19 @@ from app.job_outreach.config import get_job_outreach_settings
 
 SUBJECT_TEMPLATE = "Application for {job_title}"
 
-# Short, plain-text application email. No inline images, no banners, no
-# signature GIF (see "Email content rules"). This is the exact copy agreed
-# with the candidate.
+# Short, plain-text application email written as flowing paragraphs (no
+# bullet points) so it reads like something a person typed, not a
+# templated list. Each paragraph is kept on one long source line
+# (no manual mid-sentence line breaks) so the recipient's own mail client
+# wraps it naturally instead of showing odd, pre-broken lines. No inline
+# images, no banners, no signature GIF (see "Email content rules").
 BODY_TEMPLATE = """Dear Hiring Team,
 
-I'm an Agentic AI Developer with close to a year of hands-on experience
-building production multi-agent LLM systems — LangChain, LangGraph, RAG
-pipelines, and FastAPI, deployed end-to-end on Docker. I started as an
-AI intern and was promoted to a full-time Agentic AI Developer and AI
-Department Head within a year.
+I'm an Agentic AI Developer with close to a year of hands-on experience building production multi-agent LLM systems, including LangChain, LangGraph, RAG pipelines, and FastAPI, all deployed end-to-end on Docker. I started as an AI intern and was promoted to a full-time Agentic AI Developer and AI Department Head within a year.
 
-I'm looking for a {job_title} role at your company. Here's why I could
-be a good fit:
+I'm looking for a role as {job_title} at your company. I design and ship production agentic AI systems, including multi-agent orchestration, tool and function calling, and RAG with vector search using Qdrant and pgvector, not just prototypes. I'm currently leading AI development as Department Head, which includes owning AI hiring and technical evaluation, and I'm comfortable across the full stack, from FastAPI and Pydantic backends to React frontends and MLOps with Docker, CI/CD, and model serving.
 
-- Design and ship production agentic AI systems — multi-agent
-  orchestration, tool/function-calling, RAG with vector search (Qdrant,
-  pgvector) — not just prototypes.
-- Currently leading AI development as Department Head, including owning
-  AI hiring and technical evaluation.
-- Comfortable across the full stack — FastAPI/Pydantic backends, React
-  frontends, and MLOps (Docker, CI/CD, model serving).
-
-I've attached my resume with full experience and project details. Would
-love to connect and discuss how I could contribute to your team.
+I've attached my resume with full experience and project details. Would love to connect and discuss how I could contribute to your team.
 
 Best regards,
 {candidate_name}
