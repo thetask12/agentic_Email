@@ -18,6 +18,8 @@ KEY_AUTOMATION_RUNNING = "automation_running"
 KEY_DAILY_EMAIL_CAP = "daily_email_cap"
 KEY_EMAILS_SENT_TODAY = "emails_sent_today"
 KEY_EMAILS_SENT_DATE = "emails_sent_date"
+KEY_COMPANY_LIMIT = "company_limit"
+KEY_COMPANIES_FOUND_THIS_RUN = "companies_found_this_run"
 
 
 def _today_ist_date() -> str:
@@ -49,6 +51,8 @@ async def ensure_seeded() -> None:
                                "Max new application emails queued per calendar day."),
         KEY_EMAILS_SENT_TODAY: ("0", "Running counter of emails queued today, reset at midnight IST."),
         KEY_EMAILS_SENT_DATE: (_today_ist_date(), "IST date (YYYY-MM-DD) the counter above applies to."),
+        KEY_COMPANY_LIMIT: ("", "Optional cap on companies processed before auto-stopping (blank = no limit)."),
+        KEY_COMPANIES_FOUND_THIS_RUN: ("0", "Running counter of companies processed since automation was last Started."),
     }
     for key, (value, description) in defaults.items():
         if await settings_repo.get_by_id(key) is None:
@@ -108,4 +112,45 @@ async def increment_emails_sent_today(by: int = 1) -> int:
     new_value = current + by
     await _set_raw(KEY_EMAILS_SENT_TODAY, str(new_value),
                     "Running counter of emails queued today, reset at midnight IST.")
+    return new_value
+
+
+async def get_company_limit() -> int | None:
+    """An optional per-run cap on how many NEW companies to process before
+    automation auto-stops itself — used for small manual test runs (e.g.
+    "just 1 company") without having to remember to press Stop. None means
+    no limit (the normal continuous-loop behavior)."""
+    raw = await _get_raw(KEY_COMPANY_LIMIT)
+    if raw is None or str(raw).strip() == "":
+        return None
+    try:
+        n = int(raw)
+        return n if n > 0 else None
+    except ValueError:
+        return None
+
+
+async def set_company_limit(value: int | None) -> None:
+    await _set_raw(KEY_COMPANY_LIMIT, str(value) if value else "",
+                    "Optional cap on companies processed before auto-stopping (blank = no limit).")
+
+
+async def get_companies_found_this_run() -> int:
+    raw = await _get_raw(KEY_COMPANIES_FOUND_THIS_RUN)
+    try:
+        return int(raw) if raw else 0
+    except ValueError:
+        return 0
+
+
+async def reset_companies_found_this_run() -> None:
+    await _set_raw(KEY_COMPANIES_FOUND_THIS_RUN, "0",
+                    "Running counter of companies processed since automation was last Started.")
+
+
+async def increment_companies_found_this_run(by: int = 1) -> int:
+    current = await get_companies_found_this_run()
+    new_value = current + by
+    await _set_raw(KEY_COMPANIES_FOUND_THIS_RUN, str(new_value),
+                    "Running counter of companies processed since automation was last Started.")
     return new_value

@@ -21,6 +21,8 @@ from app.job_outreach.email_discovery import (
 from app.job_outreach.email_generator import generate_application_email
 from app.job_outreach.settings_store import (
     is_running, set_running, emails_remaining_today, increment_emails_sent_today,
+    set_company_limit, get_company_limit, reset_companies_found_this_run,
+    get_companies_found_this_run, increment_companies_found_this_run,
 )
 from app.utils.ids import new_id
 from app.utils.time_utils import iso_now
@@ -49,10 +51,16 @@ async def _already_seen_company(normalized_name: str) -> bool:
     return any(_normalize(c.get("company_name", "")) == normalized_name for c in existing)
 
 
-async def start() -> None:
+async def start(max_companies: int | None = None) -> None:
+    """Starts the automation loop. If max_companies is given (e.g. "1" for a
+    quick manual test), the loop auto-stops itself as soon as that many NEW
+    companies have been processed in this run — no need to remember to press
+    Stop. Leave it unset for the normal continuous-loop behavior."""
     from app.job_outreach.scheduler import start_scheduler
+    await set_company_limit(max_companies)
+    await reset_companies_found_this_run()
     await set_running(True)
-    await _log_activity("AUTOMATION_STARTED")
+    await _log_activity("AUTOMATION_STARTED", f"max_companies={max_companies or 'unlimited'}")
     start_scheduler()
 
 
@@ -76,11 +84,21 @@ async def run_one_cycle() -> dict:
         return {"skipped": True, "reason": "daily_cap_reached"}
 
     results_summary = {"companies_found": 0, "emails_queued": 0, "runs": []}
+    company_limit = await get_company_limit()
+
+    async def _limit_reached() -> bool:
+        if company_limit is None:
+            return False
+        return await get_companies_found_this_run() >= company_limit
 
     for job_title in ROLES:
         for city in ALL_LOCATIONS:
             if await emails_remaining_today() <= 0:
                 logger.info("JOB_OUTREACH: cap reached mid-cycle, stopping early")
+                return results_summary
+            if await _limit_reached():
+                logger.info("JOB_OUTREACH: company_limit=%d reached, auto-stopping", company_limit)
+                await stop()
                 return results_summary
 
             run_record = await search_run_repo.create({
@@ -105,6 +123,8 @@ async def run_one_cycle() -> dict:
             for raw in raw_results:
                 if await emails_remaining_today() <= 0:
                     break
+                if await _limit_reached():
+                    break
 
                 company_name = guess_company_name_from_title(raw.title)
                 if not company_name:
@@ -114,6 +134,7 @@ async def run_one_cycle() -> dict:
                     continue
 
                 qualified += 1
+                await increment_companies_found_this_run(1)
 
                 await job_listing_repo.create({
                     "job_id": new_id("job"), "source": "TAVILY", "job_title": job_title,
@@ -203,6 +224,12 @@ async def run_one_cycle() -> dict:
             results_summary["emails_queued"] += emails_queued_this_run
             results_summary["runs"].append(run_id)
 
+            if await _limit_reached():
+                logger.info("JOB_OUTREACH: company_limit=%d reached after run %s, auto-stopping",
+                            company_limit, run_id)
+                await stop()
+                return results_summary
+
     await _log_activity(
         "SEARCH_CYCLE_COMPLETED",
         f"companies_found={results_summary['companies_found']} emails_queued={results_summary['emails_queued']}",
@@ -217,9 +244,13 @@ async def get_status() -> dict:
     remaining = await emails_remaining_today()
     cap = await get_daily_cap()
     sent_today = await emails_sent_today()
+    limit = await get_company_limit()
+    found_this_run = await get_companies_found_this_run()
     return {
         "running": running,
         "emails_sent_today": sent_today,
         "daily_cap": cap,
         "emails_remaining_today": remaining,
+        "company_limit": limit,
+        "companies_found_this_run": found_this_run,
     }

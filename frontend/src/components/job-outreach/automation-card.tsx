@@ -18,6 +18,8 @@ interface JobOutreachStatus {
   emails_sent_today: number;
   daily_cap: number;
   emails_remaining_today: number;
+  company_limit: number | null;
+  companies_found_this_run: number;
 }
 
 export function JobOutreachAutomationCard() {
@@ -29,13 +31,26 @@ export function JobOutreachAutomationCard() {
   );
   const [starting, setStarting] = useState(false);
   const [stopping, setStopping] = useState(false);
+  // Optional "companies to search" cap for a manual test run — blank means
+  // unlimited (the normal continuous-loop behavior). Kept as a string so the
+  // input can be empty without coercing to 0.
+  const [companyLimitInput, setCompanyLimitInput] = useState("1");
 
   async function handleStart() {
     setStarting(true);
     try {
-      const res = await api.post<JobOutreachStatus>("/api/job-outreach/start");
+      const trimmed = companyLimitInput.trim();
+      const maxCompanies = trimmed === "" ? null : Math.max(1, parseInt(trimmed, 10) || 1);
+      const res = await api.post<JobOutreachStatus>("/api/job-outreach/start", {
+        max_companies: maxCompanies,
+      });
       mutate(res, { revalidate: false });
-      push({ title: "Automation started", description: "Job search + outreach cycles will run in the background." });
+      push({
+        title: "Automation started",
+        description: maxCompanies
+          ? `Will auto-stop after ${maxCompanies} compan${maxCompanies === 1 ? "y" : "ies"}.`
+          : "Job search + outreach cycles will run continuously in the background.",
+      });
     } catch (err) {
       push({
         title: "Failed to start automation",
@@ -94,6 +109,32 @@ export function JobOutreachAutomationCard() {
             <div className="text-xs uppercase tracking-wide text-slate-400">Daily cap</div>
             <div className="mt-0.5 font-semibold text-slate-900">{data?.daily_cap ?? "—"}</div>
           </div>
+          {running && data?.company_limit ? (
+            <div className="col-span-2">
+              <div className="text-xs uppercase tracking-wide text-slate-400">This run</div>
+              <div className="mt-0.5 font-semibold text-slate-900">
+                {data.companies_found_this_run} / {data.company_limit} companies
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="mb-3 flex items-end gap-3">
+          <div>
+            <label htmlFor="company-limit" className="text-xs uppercase tracking-wide text-slate-400">
+              Companies to search
+            </label>
+            <input
+              id="company-limit"
+              type="number"
+              min={1}
+              placeholder="unlimited"
+              value={companyLimitInput}
+              onChange={(e) => setCompanyLimitInput(e.target.value)}
+              disabled={running}
+              className="mt-0.5 block w-32 rounded-md border border-slate-200 px-2 py-1.5 text-sm disabled:bg-slate-50 disabled:text-slate-400"
+            />
+          </div>
         </div>
 
         <div className="flex gap-3">
@@ -107,7 +148,9 @@ export function JobOutreachAutomationCard() {
           </Button>
         </div>
         <p className="mt-2 text-xs text-slate-500">
-          Stop only prevents new search cycles from starting — emails already queued are still sent.
+          Leave &quot;Companies to search&quot; blank for continuous automation. Set a number (e.g. 1) for a
+          quick test run that auto-stops itself once that many companies have been processed. Stop only
+          prevents new search cycles from starting — emails already queued are still sent.
         </p>
       </CardContent>
     </Card>

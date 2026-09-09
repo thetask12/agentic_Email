@@ -5,6 +5,7 @@ in app/main.py, additively (does not touch any existing router).
 from __future__ import annotations
 
 from fastapi import APIRouter
+from pydantic import BaseModel
 
 from app.job_outreach import service
 from app.job_outreach.repositories import company_repo, email_queue_repo
@@ -12,9 +13,16 @@ from app.job_outreach.repositories import company_repo, email_queue_repo
 router = APIRouter(prefix="/api/job-outreach", tags=["job-outreach"])
 
 
+class StartRequest(BaseModel):
+    # Optional cap on how many NEW companies to process before automation
+    # auto-stops itself — e.g. 1 for a quick manual test send. Omit/null for
+    # the normal continuous-loop behavior (no limit).
+    max_companies: int | None = None
+
+
 @router.post("/start")
-async def start_automation():
-    await service.start()
+async def start_automation(payload: StartRequest = StartRequest()):
+    await service.start(max_companies=payload.max_companies)
     return await service.get_status()
 
 
