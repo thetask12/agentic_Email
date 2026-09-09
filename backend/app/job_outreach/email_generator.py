@@ -17,36 +17,33 @@ from app.job_outreach.config import get_job_outreach_settings
 SUBJECT_TEMPLATE = "Application: {job_title}"
 
 # Short, plain-text application email. No inline images, no banners, no
-# signature GIF (see "Email content rules"). Bullet highlights are
-# deliberately generic/skills-and-experience-shaped rather than tied to any
-# specific employer, since no employer name may be disclosed.
-BODY_TEMPLATE = """Hello,
+# signature GIF (see "Email content rules"). No employer name is ever
+# disclosed — this is the exact copy agreed with the candidate.
+BODY_TEMPLATE = """Hi Team,
 
-I'm writing to express interest in the {job_title} role at your company.
+I'm an Agentic AI Developer with close to a year of hands-on experience
+building production multi-agent LLM systems — LangChain, LangGraph, RAG
+pipelines, and FastAPI, deployed end-to-end on Docker. I started as an
+AI intern and was promoted to a full-time Agentic AI Developer and AI
+Department Head within a year.
 
-I have hands-on experience building AI and agentic AI systems — including
-LLM-powered automation pipelines, retrieval-augmented applications, and
-production backend services — with a progression from individual
-contributor work into designing and owning end-to-end AI features.
+I came across the {job_title} opening at your company and would like to
+apply. A quick snapshot of my background:
 
-A few highlights:
-- Built and shipped agentic AI workflows integrating LLMs with real
-  business systems (search, data pipelines, and automated decisioning).
-- Designed backend services (Python/FastAPI) powering AI-driven products,
-  including integrations with vector search, structured-output LLM calls,
-  and third-party APIs.
-- Comfortable owning a feature end-to-end: architecture, implementation,
-  and iterating based on real usage.
+- Design and ship production agentic AI systems — multi-agent
+  orchestration, tool/function-calling, RAG with vector search (Qdrant,
+  pgvector) — not just prototypes.
+- Currently leading AI development as Department Head, including owning
+  AI hiring and technical evaluation.
+- Comfortable across the full stack — FastAPI/Pydantic backends, React
+  frontends, and MLOps (Docker, CI/CD, model serving).
 
-I've attached my resume for more detail. I'd welcome the chance to talk
-about how I could contribute to your team.
-
-Thank you for your time and consideration.
+I've attached my resume with full experience and project details. Would
+love to connect and discuss how I could contribute to your team.
 
 Best regards,
 {candidate_name}
-{candidate_phone}
-{candidate_email}
+{candidate_phone} | {candidate_email}
 LinkedIn: {candidate_linkedin}
 GitHub: {candidate_github}
 """
