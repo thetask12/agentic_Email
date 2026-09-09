@@ -35,6 +35,24 @@ _PLATFORM_NAMES = {
     "cutshort", "instahyre", "hirist",
 }
 
+# The 9 job platforms this module searches (site-scoped, read-only public
+# search results — never a login/scrape of any of these sites, same rule as
+# the main system's source_manager.py). Mirrors the old system's
+# DAILY_SOURCES list. Each platform gets its own `site:` query per
+# (role, city) combination, so results are pulled specifically from that
+# platform rather than a generic web search.
+PLATFORM_DOMAINS: dict[str, str] = {
+    "naukri": "naukri.com",
+    "indeed": "indeed.com",
+    "linkedin": "linkedin.com/jobs",
+    "apna": "apna.co",
+    "foundit": "foundit.in",
+    "timesjobs": "timesjobs.com",
+    "workindia": "workindia.in",
+    "shine": "shine.com",
+    "internshala": "internshala.com",
+}
+
 
 @dataclass
 class RawJobResult:
@@ -64,32 +82,47 @@ def guess_company_name_from_title(title: str) -> str | None:
     return None
 
 
-def build_queries(job_title: str, city: str) -> list[str]:
-    """Construct search queries for one (role, city) combination. India
-    cities get an onsite-or-remote query; the fixed "Remote (India)" and
-    remote-international entries get a query that requires explicit
-    openness to remote/India candidates, since those postings are not
-    inherently location-scoped."""
+def _location_clause(city: str) -> str:
+    """The location-qualifying part of a query, shared by every platform's
+    site-scoped query for one (role, city) combination."""
     if city == "Remote (India)":
-        return [f'"{job_title}" remote India hiring']
+        return "remote India hiring"
     if city in INDIA_LOCATIONS:
-        return [f'"{job_title}" "{city}" hiring']
+        return f'"{city}" hiring'
     # Remote-international: only postings explicitly open to remote/India
     # candidates are relevant — bias the query toward that qualifier so
     # irrelevant on-site-only postings in that country are less likely to
     # dominate results. Final qualification still happens via AI extraction
     # downstream (service.py), this is just query-time steering.
-    return [f'"{job_title}" "{city}" remote India candidates hiring']
+    return f'"{city}" remote India candidates hiring'
+
+
+def build_queries(job_title: str, city: str) -> list[str]:
+    """Construct one site-scoped query per platform in PLATFORM_DOMAINS for
+    this (role, city) combination, e.g. 'site:naukri.com "AI Engineer"
+    "Bangalore" hiring'. Never a login/scrape of any platform — this is a
+    plain public search-engine query restricted to that domain."""
+    location_clause = _location_clause(city)
+    return [
+        f'site:{domain} "{job_title}" {location_clause}'
+        for domain in PLATFORM_DOMAINS.values()
+    ]
 
 
 async def run_search(job_title: str, city: str, result_limit: int = 10) -> list[RawJobResult]:
     is_remote = city == "Remote (India)" or city not in INDIA_LOCATIONS
     queries = build_queries(job_title, city)
-    logger.info("JOB_OUTREACH_SEARCH_START job_title=%r city=%r queries=%s", job_title, city, queries)
+    logger.info("JOB_OUTREACH_SEARCH_START job_title=%r city=%r platforms=%d",
+                job_title, city, len(queries))
+
+    # Split result_limit across the 9 platform queries (at least 1 each) so
+    # a single (role, city) combination doesn't return an unbounded number
+    # of results just because it now issues 9 queries instead of 1.
+    per_platform_limit = max(1, result_limit // len(queries)) if queries else result_limit
 
     results: list[RawJobResult] = []
     for q in queries:
-        hits: list[SearchResult] = await search(q, num=min(result_limit, 10))
+        hits: list[SearchResult] = await search(q, num=min(per_platform_limit, 10))
         logger.info("JOB_OUTREACH_SEARCH_RESULT job_title=%r city=%r query=%r hits=%d",
                     job_title, city, q, len(hits))
         for h in hits:
