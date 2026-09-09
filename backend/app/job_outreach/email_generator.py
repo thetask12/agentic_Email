@@ -29,8 +29,8 @@ pipelines, and FastAPI, deployed end-to-end on Docker. I started as an
 AI intern and was promoted to a full-time Agentic AI Developer and AI
 Department Head within a year.
 
-I'm looking for a {job_title} role at your company. A quick snapshot of
-my background:
+I'm looking for a {job_title} role at your company. Here's why I could
+be a good fit:
 
 - Design and ship production agentic AI systems — multi-agent
   orchestration, tool/function-calling, RAG with vector search (Qdrant,
