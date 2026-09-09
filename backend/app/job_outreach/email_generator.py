@@ -34,9 +34,9 @@ I'm an Agentic AI Developer with close to a year of hands-on experience building
 
 I'm looking for a role as {job_title} at your company. Here's why I could be a good fit:
 
-- I design and ship production agentic AI systems, including multi-agent orchestration, tool and function calling, and RAG with vector search using Qdrant and pgvector, not just prototypes.
-- I'm currently leading AI development as Department Head, which includes owning AI hiring and technical evaluation.
-- I'm comfortable across the full stack, from FastAPI and Pydantic backends to React frontends and MLOps with Docker, CI/CD, and model serving.
+- Hands-on experience designing and shipping production agentic AI systems: multi-agent orchestration, tool/function calling, and RAG with vector search using Qdrant and pgvector — real products, not prototypes.
+- Currently leading AI development as Department Head, including owning AI hiring and technical evaluation for the team.
+- Comfortable across the full stack — FastAPI and Pydantic backends, React frontends, and MLOps with Docker, CI/CD, and model serving.
 
 I've attached my resume with full experience and project details. Would love to connect and discuss how I could contribute to your team.
 
