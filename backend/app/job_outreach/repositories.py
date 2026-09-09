@@ -21,7 +21,14 @@ from app.utils.time_utils import iso_now
 
 logger = logging.getLogger("job_outreach.repository")
 
-LIST_CACHE_TTL_SECONDS = 8.0
+# Google Sheets enforces a default 60 read-requests/minute/user quota. This
+# module hits SETTINGS very frequently (every automation tick checks
+# running/cap/counters several times) and COMPANIES/SUPPRESSION_LIST on every
+# candidate lead (dedup checks) — a short cache TTL was previously exhausting
+# the quota within a single search cycle. 30s keeps status-polling (every 15s
+# from the frontend) fresh enough while cutting repeated full-tab reads
+# dramatically during a busy cycle.
+LIST_CACHE_TTL_SECONDS = 30.0
 
 
 class JobOutreachBaseRepository:

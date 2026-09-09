@@ -27,8 +27,17 @@ def _today_ist_date() -> str:
 
 
 async def _get_raw(key: str) -> str | None:
-    row = await settings_repo.get_by_id(key)
-    return row.get("value") if row else None
+    # Reads from the repository's own cached list_all() snapshot (one Sheets
+    # API read per LIST_CACHE_TTL_SECONDS window, shared across every key)
+    # rather than get_by_id()/find_row_by_id(), which issues its own
+    # separate Sheets reads per call. SETTINGS is read extremely often (every
+    # automation tick checks running/cap/counters several times), so this
+    # matters a lot for staying under Google's per-minute read quota.
+    rows = await settings_repo.list_all()
+    for r in rows:
+        if r.get("key") == key:
+            return r.get("value")
+    return None
 
 
 async def _set_raw(key: str, value: str, description: str = "") -> None:
