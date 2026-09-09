@@ -19,7 +19,7 @@ SUBJECT_TEMPLATE = "Application: {job_title}"
 # Short, plain-text application email. No inline images, no banners, no
 # signature GIF (see "Email content rules"). No employer name is ever
 # disclosed — this is the exact copy agreed with the candidate.
-BODY_TEMPLATE = """Hi Team,
+BODY_TEMPLATE = """Dear {company_name} Team,
 
 I'm an Agentic AI Developer with close to a year of hands-on experience
 building production multi-agent LLM systems — LangChain, LangGraph, RAG
@@ -49,15 +49,18 @@ GitHub: {candidate_github}
 """
 
 
-def generate_application_email(*, job_title: str, sender_email: str) -> dict:
+def generate_application_email(*, job_title: str, sender_email: str, company_name: str = "") -> dict:
     """Returns {subject, body} for one application email. `sender_email` is
     this module's own sender identity (JOB_OUTREACH_SENDER_EMAIL) used only
     in the signature line — Apps Script decides the actual Gmail From
-    address (always whichever account authorized its triggers)."""
+    address (always whichever account authorized its triggers). `company_name`
+    is used only in the greeting ("Dear {company_name} Team,") — falls back to
+    a generic "Hiring Team" if not provided/blank."""
     settings = get_job_outreach_settings()
     subject = SUBJECT_TEMPLATE.format(job_title=job_title)
     body = BODY_TEMPLATE.format(
         job_title=job_title,
+        company_name=company_name.strip() if company_name and company_name.strip() else "Hiring",
         candidate_name=settings.job_outreach_candidate_name,
         candidate_phone=settings.job_outreach_candidate_phone,
         candidate_email=sender_email,

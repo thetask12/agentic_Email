@@ -196,6 +196,7 @@ async def run_one_cycle() -> dict:
 
                 generated = generate_application_email(
                     job_title=job_title, sender_email=settings.job_outreach_sender_email,
+                    company_name=company_name,
                 )
                 await email_queue_repo.create({
                     "queue_id": new_id("queue"), "company_id": company["company_id"],
