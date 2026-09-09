@@ -1,0 +1,3632 @@
+# BOTIVATE AI JOB INTELLIGENCE + OUTREACH + FOLLOW-UP + EMAIL CRM
+# COMPLETE PRODUCTION SYSTEM — CLAUDE CODE MASTER PROMPT
+
+You are a senior staff-level full-stack engineer, AI agent architect,
+web research engineer, SaaS UX designer, Google Workspace engineer,
+Google Apps Script engineer, Gmail integration engineer,
+email automation engineer, CRM architect, database architect,
+security engineer and DevOps engineer.
+
+Your task is to BUILD a complete production-quality application
+for Botivate Services LLP.
+
+This is NOT merely a job scraper.
+
+This is NOT merely an email sender.
+
+This is a complete:
+
+JOB DISCOVERY
+→ COMPANY INTELLIGENCE
+→ LEAD QUALIFICATION
+→ COLD OUTREACH
+→ EMAIL QUEUE
+→ SEND TRACKING
+→ REPLY TRACKING
+→ FOLLOW-UP MANAGEMENT
+→ SALES ACTIVITY TIMELINE
+→ CAMPAIGN ANALYTICS
+
+platform.
+
+============================================================
+1. CORE BUSINESS PURPOSE
+============================================================
+
+Botivate wants to identify companies that are hiring for MIS,
+reporting, data, operations, business analysis and related roles.
+
+A job posting is treated as a potential BUSINESS AUTOMATION SIGNAL.
+
+Example:
+
+Company:
+ABC Pvt Ltd
+
+Job:
+MIS Executive
+
+Location:
+Raipur, Chhattisgarh
+
+Job requirements:
+- Excel
+- daily MIS
+- dashboards
+- reporting
+- data consolidation
+- coordination
+
+The system should identify:
+
+"This company may have a business automation requirement."
+
+Then:
+
+JOB
+↓
+COMPANY
+↓
+COMPANY RESEARCH
+↓
+PUBLIC BUSINESS EMAIL
+↓
+BOTIVATE OPPORTUNITY SCORE
+↓
+PERSONALIZED COLD EMAIL
+↓
+USER APPROVAL
+↓
+EMAIL QUEUE
+↓
+EMAIL SENT
+↓
+TRACK SENT STATUS
+↓
+TRACK REPLY
+↓
+USER DECIDES FOLLOW-UP DATE
+↓
+FOLLOW-UP QUEUE
+↓
+FOLLOW-UP SENT
+↓
+REPLY TRACKED
+↓
+COMPLETE ACTIVITY TIMELINE
+
+============================================================
+2. VERY IMPORTANT
+============================================================
+
+The frontend must provide complete visibility.
+
+The user must be able to answer:
+
+- Which companies were found?
+- Which job generated the lead?
+- Which source found the job?
+- Which company website was found?
+- Which email was found?
+- Where did the email come from?
+- What was the email sent to?
+- When was it sent?
+- Was it delivered?
+- Was it opened, if reliable tracking is available?
+- Did the company reply?
+- What did they reply?
+- When did they reply?
+- Was a follow-up scheduled?
+- When is the follow-up due?
+- Was the follow-up sent?
+- How many follow-ups have been sent?
+- What was the last communication?
+- What is the next action?
+- What is the current lead status?
+
+Everything must be visible in the frontend.
+
+============================================================
+3. FRONTEND = SALES CONTROL CENTER
+============================================================
+
+The frontend is the primary user interface.
+
+It should behave like a professional B2B sales CRM.
+
+Main navigation:
+
+Dashboard
+Job Search
+Search Runs
+Sources
+Jobs
+Companies
+Leads
+Outreach
+Follow-ups
+Inbox / Replies
+Email Queue
+Campaigns
+Analytics
+Activity
+Settings
+
+============================================================
+4. DASHBOARD
+============================================================
+
+Create a premium executive dashboard.
+
+Metrics:
+
+TOTAL JOBS
+TOTAL QUALIFIED JOBS
+TOTAL COMPANIES
+TOTAL LEADS
+EMAILS FOUND
+EMAILS APPROVED
+EMAILS QUEUED
+EMAILS SENT
+EMAILS FAILED
+REPLIES RECEIVED
+FOLLOW-UPS DUE
+FOLLOW-UPS SENT
+ACTIVE CONVERSATIONS
+INTERESTED LEADS
+MEETING REQUESTS
+NOT INTERESTED
+BOUNCED
+SUPPRESSED
+
+Example:
+
+TODAY
+
+Jobs Found              47
+New Companies           29
+New Leads               22
+Emails Sent             15
+Replies Received         3
+Follow-ups Due           7
+Meetings Requested       1
+
+============================================================
+5. PIPELINE
+============================================================
+
+Create a visual lead pipeline:
+
+DISCOVERED
+↓
+QUALIFIED
+↓
+EMAIL DRAFTED
+↓
+APPROVED
+↓
+QUEUED
+↓
+SENT
+↓
+REPLIED
+↓
+FOLLOW-UP DUE
+↓
+FOLLOW-UP SENT
+↓
+CONVERSATION
+↓
+MEETING
+↓
+INTERESTED
+↓
+CONVERTED
+
+Alternative terminal states:
+
+NOT_INTERESTED
+NO_RESPONSE
+BOUNCED
+SUPPRESSED
+CLOSED
+
+============================================================
+6. LEAD STATUS
+============================================================
+
+Use these statuses:
+
+NEW
+QUALIFIED
+EMAIL_DRAFTED
+APPROVED
+QUEUED
+CONTACTED
+REPLIED
+FOLLOW_UP_DUE
+FOLLOW_UP_SENT
+IN_CONVERSATION
+MEETING_REQUESTED
+INTERESTED
+NOT_INTERESTED
+BOUNCED
+NO_RESPONSE
+SUPPRESSED
+CLOSED
+
+============================================================
+7. JOB SEARCH
+============================================================
+
+User enters:
+
+Job Title
+State
+City
+Date Posted
+Experience
+Sources
+Result Limit
+
+Examples:
+
+MIS Executive
+Chhattisgarh
+Raipur
+Last 30 days
+
+OR:
+
+MIS Manager
+Maharashtra
+Pune
+Last 7 days
+
+Support:
+
+All Indian states.
+
+Initial focus:
+
+Chhattisgarh.
+
+============================================================
+8. SOURCE MANAGER
+============================================================
+
+Sources:
+
+Naukri
+Indeed
+LinkedIn Jobs
+Apna
+Foundit
+TimesJobs
+WorkIndia
+Shine
+Internshala
+Company Career Pages
+Google Web Search / Discovery
+
+Source architecture must be modular.
+
+Never bypass:
+
+CAPTCHA
+LOGIN
+AUTHENTICATION
+ACCESS CONTROL
+PAYWALL
+ANTI-BOT SYSTEMS
+
+Respect:
+
+robots.txt
+Terms of Service
+rate limits
+API terms
+applicable laws
+
+Prefer:
+
+official APIs
+permitted public pages
+Google indexed discovery
+public company pages
+
+If a source cannot be accessed:
+
+mark:
+
+BLOCKED
+or
+UNAVAILABLE
+
+and continue.
+
+============================================================
+9. JOB RECORD
+============================================================
+
+Store:
+
+job_id
+source
+source_job_id
+job_title
+company_name
+location
+city
+state
+country
+description
+experience
+salary
+employment_type
+posted_date
+skills
+qualification
+job_url
+application_url
+source_url
+extraction_confidence
+created_at
+updated_at
+
+============================================================
+10. COMPANY RECORD
+============================================================
+
+Store:
+
+company_id
+company_name
+normalized_name
+official_website
+domain
+industry
+city
+state
+country
+phone
+linkedin_url
+company_description
+website_confidence
+research_status
+created_at
+updated_at
+
+============================================================
+11. CONTACT RECORD
+============================================================
+
+Store public business contact information.
+
+Fields:
+
+contact_id
+company_id
+contact_name
+designation
+email
+email_type
+email_source_url
+email_confidence
+phone
+linkedin_url
+verification_status
+created_at
+updated_at
+
+Do NOT invent contact names.
+
+Do NOT guess emails.
+
+Do NOT use private or leaked information.
+
+Only use publicly available business contact information.
+
+============================================================
+12. LEAD RECORD
+============================================================
+
+Fields:
+
+lead_id
+company_id
+job_id
+contact_id
+lead_score
+botivate_opportunity_score
+automation_signals
+pain_points
+recommended_solution
+status
+owner
+created_at
+updated_at
+last_activity_at
+next_action
+next_action_date
+
+============================================================
+13. BOTIVATE OPPORTUNITY ANALYSIS
+============================================================
+
+Analyze:
+
+job title
+job description
+skills
+responsibilities
+company information
+
+Signals:
+
+Excel-heavy reporting
+daily MIS
+dashboarding
+multiple departments
+data consolidation
+ERP data
+manual reporting
+sales reporting
+purchase reporting
+inventory reporting
+dispatch reporting
+outstanding reporting
+follow-ups
+repetitive tasks
+manual workflows
+data entry
+business reporting
+
+Generate:
+
+automation_opportunity_score: 0-100
+
+automation_signals[]
+
+pain_points[]
+
+recommended_solution:
+
+AUTOROCKET
+CUSTOM_AUTOMATION
+BOTH
+MANUAL_REVIEW
+
+============================================================
+14. EMAIL TEMPLATE SYSTEM
+============================================================
+
+Create EMAIL_TEMPLATES.
+
+Default template:
+
+MIS Job — Business Automation Outreach
+
+The user's provided Botivate email is the MASTER TEMPLATE.
+
+Core subject:
+
+A Complete Business Automation Team Beyond a Single MIS Hire
+
+The system must allow:
+
+Create Template
+Edit Template
+Duplicate Template
+Activate Template
+Deactivate Template
+Delete Template
+
+============================================================
+15. PERSONALIZED EMAIL
+============================================================
+
+AI must personalize using verified facts only.
+
+Possible personalization:
+
+company name
+job title
+city
+job responsibilities
+reporting requirements
+dashboard requirements
+ERP requirements
+automation signals
+
+Never invent company facts.
+
+Never invent pain points.
+
+============================================================
+16. EMAIL DRAFT
+============================================================
+
+EMAIL_DRAFTS fields:
+
+email_id
+lead_id
+company_id
+recipient_email
+sender_email
+subject
+plain_text_body
+html_body
+template_id
+personalization_points
+facts_used
+confidence
+status
+created_at
+updated_at
+
+Statuses:
+
+DRAFT
+APPROVED
+REJECTED
+QUEUED
+SENT
+
+============================================================
+17. HUMAN APPROVAL
+============================================================
+
+Default:
+
+AUTO_SEND = OFF
+
+User must approve an email before initial sending.
+
+Frontend buttons:
+
+EDIT
+REGENERATE
+APPROVE
+REJECT
+QUEUE
+
+============================================================
+18. EMAIL QUEUE
+============================================================
+
+EMAIL_QUEUE:
+
+queue_id
+email_id
+lead_id
+recipient_email
+sender_email
+subject
+body
+status
+priority
+scheduled_at
+attempts
+max_attempts
+last_attempt_at
+sent_at
+message_id
+error_message
+created_at
+updated_at
+
+Statuses:
+
+PENDING
+PROCESSING
+SENT
+RETRY
+FAILED
+CANCELLED
+SKIPPED
+
+============================================================
+19. GOOGLE SHEETS
+============================================================
+
+Google Sheets is the primary database.
+
+Create sheets:
+
+CONFIG
+SEARCH_RUNS
+JOBS
+COMPANIES
+CONTACTS
+LEADS
+EMAIL_TEMPLATES
+EMAIL_DRAFTS
+EMAIL_QUEUE
+EMAIL_EVENTS
+FOLLOW_UPS
+REPLIES
+CONVERSATIONS
+CAMPAIGNS
+SUPPRESSION_LIST
+SOURCE_STATUS
+ACTIVITY_LOG
+SETTINGS
+
+============================================================
+20. EMAIL EVENTS
+============================================================
+
+EMAIL_EVENTS:
+
+event_id
+email_id
+lead_id
+event_type
+timestamp
+message_id
+provider
+metadata
+created_at
+
+event_type:
+
+CREATED
+APPROVED
+QUEUED
+PROCESSING
+SENT
+DELIVERED
+BOUNCED
+FAILED
+OPENED
+CLICKED
+REPLIED
+FOLLOW_UP_SCHEDULED
+FOLLOW_UP_SENT
+CANCELLED
+
+============================================================
+21. SENT EMAIL TRACKING
+============================================================
+
+For every sent email store:
+
+recipient
+sender
+subject
+message_id
+sent_at
+campaign
+lead_id
+company_id
+job_id
+template_id
+
+Frontend must show:
+
+SENT
+
+with exact date/time.
+
+Example:
+
+Sent
+21 Aug 2026
+12:41 PM
+
+============================================================
+22. DELIVERY TRACKING
+============================================================
+
+If reliable delivery/bounce information is available through the configured Google Workspace/Gmail environment:
+
+record:
+
+DELIVERED
+BOUNCED
+
+If delivery status cannot be reliably obtained:
+
+do NOT fabricate it.
+
+Show:
+
+SENT — DELIVERY STATUS UNKNOWN
+
+instead.
+
+============================================================
+23. OPEN TRACKING
+============================================================
+
+Open tracking is optional.
+
+Do NOT falsely claim that an email was opened.
+
+If reliable tracking is implemented:
+
+OPENED
+
+otherwise:
+
+OPEN TRACKING NOT AVAILABLE
+
+This must be transparent in the frontend.
+
+============================================================
+24. REPLY TRACKING — VERY IMPORTANT
+============================================================
+
+The system must monitor the configured Botivate Gmail/Google Workspace inbox.
+
+Google Apps Script should periodically scan the inbox for replies related to sent campaign emails.
+
+Use:
+
+GmailApp
+
+or appropriate Gmail/Google Workspace API.
+
+Identify replies using:
+
+thread ID
+message ID
+In-Reply-To
+References
+recipient
+subject
+conversation/thread
+
+Do NOT rely only on subject matching.
+
+============================================================
+25. REPLIES SHEET
+============================================================
+
+Create:
+
+REPLIES
+
+Columns:
+
+reply_id
+lead_id
+company_id
+email_id
+thread_id
+message_id
+from_email
+from_name
+to_email
+subject
+body_text
+body_html
+received_at
+reply_type
+sentiment
+intent
+ai_summary
+requires_action
+action_type
+created_at
+
+============================================================
+26. REPLY TYPES
+============================================================
+
+AI should classify replies.
+
+Types:
+
+INTERESTED
+REQUEST_FOR_DETAILS
+MEETING_REQUEST
+POSITIVE
+NEUTRAL
+NOT_INTERESTED
+ASK_LATER
+OUT_OF_OFFICE
+BOUNCE
+UNSUBSCRIBE
+UNKNOWN
+
+============================================================
+27. REPLY AI ANALYSIS
+============================================================
+
+When a reply arrives:
+
+OpenAI analyzes it.
+
+Generate:
+
+summary
+intent
+sentiment
+lead_status
+recommended_next_action
+suggested_response
+priority
+
+Example:
+
+Reply:
+
+"Please share your company profile and pricing."
+
+AI:
+
+Intent:
+REQUEST_FOR_DETAILS
+
+Status:
+INTERESTED
+
+Next Action:
+SEND_COMPANY_PROFILE
+
+Priority:
+HIGH
+
+============================================================
+28. REPLY FRONTEND
+============================================================
+
+Create:
+
+INBOX / REPLIES
+
+Every reply must be visible.
+
+Columns:
+
+Company
+Contact
+Subject
+Received
+Intent
+Sentiment
+Lead Status
+Next Action
+Owner
+
+Clicking a reply opens the complete conversation.
+
+============================================================
+29. CONVERSATION VIEW
+============================================================
+
+Create a Gmail/CRM-style conversation interface.
+
+Example:
+
+ABC Pvt Ltd
+
+MIS Executive Requirement
+
+--------------------------------
+
+BOTIVATE
+21 Aug 2026
+12:41 PM
+
+Subject:
+A Complete Business Automation Team Beyond a Single MIS Hire
+
+[full email]
+
+--------------------------------
+
+ABC Pvt Ltd
+22 Aug 2026
+10:18 AM
+
+Thank you for reaching out.
+Please share your company profile.
+
+--------------------------------
+
+BOTIVATE
+[future follow-up]
+
+--------------------------------
+
+Timeline must be chronological.
+
+============================================================
+30. COMPLETE ACTIVITY TIMELINE
+============================================================
+
+Every lead gets a timeline.
+
+Example:
+
+21 Aug 2026 09:32
+Job discovered
+
+21 Aug 2026 09:36
+Company researched
+
+21 Aug 2026 09:38
+Business email found
+
+21 Aug 2026 09:41
+Opportunity score calculated: 87
+
+21 Aug 2026 09:45
+Email generated
+
+21 Aug 2026 10:02
+Email approved
+
+21 Aug 2026 10:05
+Email queued
+
+21 Aug 2026 10:15
+Email sent
+
+23 Aug 2026 10:15
+Follow-up scheduled
+
+27 Aug 2026 10:15
+Follow-up sent
+
+29 Aug 2026 09:21
+Reply received
+
+29 Aug 2026 09:22
+Reply classified as INTERESTED
+
+============================================================
+31. FOLLOW-UP SYSTEM — VERY IMPORTANT
+============================================================
+
+The user controls follow-up dates.
+
+Do NOT automatically decide follow-up dates unless user explicitly enables automation.
+
+Frontend must allow:
+
+Schedule Follow-up
+
+Date picker
+
+Time picker
+
+Follow-up template
+
+Notes
+
+============================================================
+32. FOLLOW-UP RECORD
+============================================================
+
+FOLLOW_UPS:
+
+follow_up_id
+lead_id
+company_id
+original_email_id
+sequence_number
+template_id
+subject
+body
+scheduled_at
+status
+sent_at
+message_id
+reply_received
+cancelled_at
+created_at
+updated_at
+
+Statuses:
+
+DRAFT
+SCHEDULED
+DUE
+QUEUED
+SENT
+CANCELLED
+SKIPPED
+FAILED
+
+============================================================
+33. FOLLOW-UP DATE FILTER
+============================================================
+
+Create a Follow-up dashboard.
+
+Filters:
+
+Today
+Tomorrow
+This Week
+Next 7 Days
+Overdue
+Custom Date Range
+
+Example:
+
+FOLLOW-UPS DUE TODAY: 12
+
+OVERDUE: 5
+
+UPCOMING: 19
+
+============================================================
+34. FOLLOW-UP CALENDAR
+============================================================
+
+Create calendar view.
+
+Display:
+
+scheduled follow-ups
+due follow-ups
+sent follow-ups
+cancelled follow-ups
+
+Click an event to open lead.
+
+============================================================
+35. FOLLOW-UP TABLE
+============================================================
+
+Columns:
+
+Company
+Contact
+Original Email
+Sequence
+Last Contact
+Next Follow-up
+Status
+Reply
+Action
+
+Example:
+
+ABC Pvt Ltd
+hr@abc.com
+Initial
+21 Aug
+25 Aug
+Scheduled
+No Reply
+Edit
+
+XYZ Ltd
+info@xyz.com
+Follow-up #1
+18 Aug
+Today
+DUE
+No Reply
+Send
+
+============================================================
+36. FOLLOW-UP AUTOMATION
+============================================================
+
+Apps Script worker processes follow-ups.
+
+Only process:
+
+status = SCHEDULED
+
+and:
+
+scheduled_at <= NOW()
+
+Before sending:
+
+1. Check if lead has replied.
+2. Check if company is suppressed.
+3. Check if another follow-up was already sent.
+4. Check if user cancelled it.
+5. Check if maximum follow-up limit is reached.
+
+If reply exists:
+
+automatically change:
+
+FOLLOW_UP_STATUS = SKIPPED
+
+REASON = REPLIED
+
+Do NOT send an unnecessary follow-up after a reply.
+
+============================================================
+37. USER-CONTROLLED FOLLOW-UP
+============================================================
+
+User should be able to:
+
+Schedule
+Reschedule
+Cancel
+Send Now
+Edit
+Duplicate
+Skip
+
+For each follow-up.
+
+============================================================
+38. FOLLOW-UP SEQUENCE
+============================================================
+
+Support:
+
+Initial Email
+Follow-up #1
+Follow-up #2
+Follow-up #3
+Follow-up #4
+
+Do not force a fixed sequence.
+
+User decides.
+
+Configuration:
+
+MAX_FOLLOW_UPS = 4
+
+============================================================
+39. FOLLOW-UP TEMPLATES
+============================================================
+
+Create:
+
+FOLLOW_UP_TEMPLATES
+
+Examples:
+
+MIS Follow-up #1
+MIS Follow-up #2
+Final Follow-up
+
+Allow custom templates.
+
+AI may generate personalized follow-ups.
+
+============================================================
+40. FOLLOW-UP EMAIL RULE
+============================================================
+
+Follow-ups should be shorter than the initial email.
+
+Example:
+
+"Just following up on my earlier note regarding your MIS requirement.
+
+If your team is currently evaluating options for MIS reporting, dashboards or business process automation, we'd be happy to discuss how Botivate could support it.
+
+Please let me know if this would be relevant."
+
+AI should personalize based on previous conversation.
+
+============================================================
+41. REPLY-AWARE FOLLOW-UP
+============================================================
+
+If reply arrives:
+
+Cancel pending follow-ups.
+
+Lead status:
+
+REPLIED
+
+Conversation becomes:
+
+ACTIVE
+
+User decides next action.
+
+============================================================
+42. NEXT ACTION
+============================================================
+
+Every active lead must have:
+
+next_action
+next_action_date
+
+Examples:
+
+CALL
+SEND_PROFILE
+SEND_PRICING
+SCHEDULE_MEETING
+FOLLOW_UP
+WAIT_FOR_REPLY
+SEND_DEMO
+SEND_PROPOSAL
+NO_ACTION
+CLOSE
+
+============================================================
+43. LEAD DETAIL PAGE
+============================================================
+
+Create a comprehensive lead page.
+
+Sections:
+
+COMPANY
+
+JOB
+
+CONTACT
+
+BOTIVATE FIT
+
+EMAIL
+
+CONVERSATION
+
+FOLLOW-UPS
+
+ACTIVITY
+
+NEXT ACTION
+
+============================================================
+44. COMPANY DETAIL PAGE
+============================================================
+
+Display:
+
+Company name
+Official website
+Industry
+Location
+Jobs found
+Contacts
+Emails
+Leads
+Outreach history
+Replies
+Meetings
+Last contacted
+Next follow-up
+Current status
+
+============================================================
+45. OUTREACH PAGE
+============================================================
+
+Create a complete outreach management screen.
+
+Tabs:
+
+ALL
+DRAFTS
+APPROVED
+QUEUED
+SENT
+REPLIED
+FOLLOW-UP
+FAILED
+BOUNCED
+CLOSED
+
+============================================================
+46. OUTREACH TABLE
+============================================================
+
+Columns:
+
+Company
+Job
+Email
+Source
+Lead Score
+Email Status
+Sent Date
+Reply
+Last Reply
+Next Follow-up
+Status
+
+Example:
+
+ABC Ltd
+MIS Executive
+hr@abc.com
+Naukri
+87
+SENT
+21 Aug
+YES
+22 Aug
+25 Aug
+REPLIED
+
+============================================================
+47. SENT / NOT SENT VISIBILITY
+============================================================
+
+The frontend must clearly distinguish:
+
+NOT SENT
+DRAFT
+APPROVED
+QUEUED
+SENDING
+SENT
+FAILED
+BOUNCED
+
+Never hide unsent leads.
+
+User must be able to filter:
+
+"Show me companies where email has NOT been sent."
+
+============================================================
+48. REPLIED / NOT REPLIED VISIBILITY
+============================================================
+
+Filters:
+
+ALL
+REPLIED
+NOT REPLIED
+INTERESTED
+NOT INTERESTED
+WAITING
+BOUNCED
+
+============================================================
+49. FOLLOW-UP VISIBILITY
+============================================================
+
+Filters:
+
+NO FOLLOW-UP
+FOLLOW-UP SCHEDULED
+FOLLOW-UP DUE
+FOLLOW-UP SENT
+FOLLOW-UP CANCELLED
+REPLIED BEFORE FOLLOW-UP
+
+============================================================
+50. SEARCH + FILTER
+============================================================
+
+Global filters:
+
+State
+City
+Source
+Job Title
+Company
+Lead Score
+Opportunity Score
+Email Status
+Reply Status
+Follow-up Status
+Date
+Campaign
+Template
+Owner
+
+============================================================
+51. DATE FILTERS
+============================================================
+
+Support:
+
+Today
+Yesterday
+Last 7 days
+Last 30 days
+This month
+Last month
+Custom date range
+
+Apply independently to:
+
+Job Date
+Email Sent Date
+Reply Date
+Follow-up Date
+Company Research Date
+Lead Created Date
+
+============================================================
+52. CAMPAIGN SYSTEM
+============================================================
+
+Create CAMPAIGNS:
+
+campaign_id
+name
+description
+job_title
+state
+city
+sources
+template_id
+created_at
+status
+
+Statuses:
+
+DRAFT
+ACTIVE
+PAUSED
+COMPLETED
+ARCHIVED
+
+============================================================
+53. CAMPAIGN DASHBOARD
+============================================================
+
+Show:
+
+Jobs Found
+Companies
+Leads
+Emails
+Sent
+Delivered
+Replies
+Positive Replies
+Follow-ups
+Meetings
+
+Conversion funnel:
+
+Jobs
+↓
+Leads
+↓
+Emails Sent
+↓
+Replies
+↓
+Interested
+↓
+Meetings
+
+============================================================
+54. EMAIL EVENTS
+============================================================
+
+Use Google Apps Script to write events back to Google Sheets.
+
+Possible events:
+
+QUEUED
+SENT
+FAILED
+BOUNCED
+REPLY_RECEIVED
+FOLLOW_UP_SCHEDULED
+FOLLOW_UP_SENT
+
+Never fabricate:
+
+OPENED
+CLICKED
+DELIVERED
+
+unless reliable provider data exists.
+
+============================================================
+55. GOOGLE APPS SCRIPT
+============================================================
+
+Directory:
+
+apps-script/
+
+Code.gs
+Config.gs
+EmailSender.gs
+QueueWorker.gs
+FollowUpWorker.gs
+ReplyScanner.gs
+SheetRepository.gs
+GmailService.gs
+Logger.gs
+Utils.gs
+
+============================================================
+56. APPS SCRIPT WORKERS
+============================================================
+
+Worker 1:
+
+EmailQueueWorker
+
+Worker 2:
+
+FollowUpWorker
+
+Worker 3:
+
+ReplyScanner
+
+Worker 4:
+
+EventLogger
+
+Use installable time-driven triggers.
+
+Use:
+
+LockService
+
+to prevent duplicate processing.
+
+============================================================
+57. REPLY SCANNER
+============================================================
+
+ReplyScanner periodically checks configured Gmail inbox.
+
+Identify relevant threads.
+
+For each new reply:
+
+create REPLIES row.
+
+create EMAIL_EVENT:
+
+REPLY_RECEIVED
+
+update:
+
+LEAD.status = REPLIED
+
+cancel pending follow-ups.
+
+Send event to backend if required.
+
+============================================================
+58. REPLY BODY STORAGE
+============================================================
+
+Store:
+
+plain text body
+
+and optionally sanitized HTML.
+
+Never render unsafe raw HTML directly.
+
+Sanitize HTML before frontend display.
+
+============================================================
+59. AI REPLY ANALYSIS
+============================================================
+
+Use OpenAI.
+
+Input:
+
+previous conversation
+latest reply
+
+Output:
+
+summary
+intent
+sentiment
+priority
+lead_status
+recommended_next_action
+suggested_response
+
+Example:
+
+Reply:
+"Can we schedule a demo next Tuesday?"
+
+Output:
+
+intent:
+MEETING_REQUEST
+
+status:
+MEETING_REQUESTED
+
+next_action:
+SCHEDULE_MEETING
+
+priority:
+HIGH
+
+============================================================
+60. SUGGESTED RESPONSE
+============================================================
+
+Frontend may display:
+
+AI Suggested Response
+
+User can:
+
+COPY
+EDIT
+SEND
+
+Never automatically send an AI reply unless the user explicitly enables such functionality.
+
+Default:
+
+AUTO_REPLY = OFF
+
+============================================================
+61. CONVERSATION THREADING
+============================================================
+
+Maintain:
+
+thread_id
+message_id
+in_reply_to
+references
+
+Every email/reply should remain connected to the same conversation where possible.
+
+============================================================
+62. EMAIL SEND ACCOUNT
+============================================================
+
+Use the configured Botivate Gmail/Google Workspace account.
+
+Configuration:
+
+BOTIVATE_SENDER_EMAIL
+BOTIVATE_SENDER_NAME
+
+Never hardcode credentials.
+
+============================================================
+63. GOOGLE SHEETS AS DATABASE
+============================================================
+
+Backend can use Google Sheets API for CRUD.
+
+Apps Script also operates directly on the same Sheet.
+
+Avoid race conditions.
+
+Use:
+
+row IDs
+
+timestamps
+
+version fields where necessary.
+
+============================================================
+64. ROW IDENTIFIERS
+============================================================
+
+Every important entity must have a UUID.
+
+Examples:
+
+job_id
+company_id
+lead_id
+email_id
+follow_up_id
+reply_id
+event_id
+campaign_id
+
+Never use spreadsheet row number as permanent ID.
+
+============================================================
+65. ACTIVITY LOG
+============================================================
+
+ACTIVITY_LOG:
+
+activity_id
+lead_id
+company_id
+activity_type
+description
+metadata
+created_at
+created_by
+
+Examples:
+
+JOB_FOUND
+COMPANY_RESEARCHED
+EMAIL_FOUND
+EMAIL_GENERATED
+EMAIL_APPROVED
+EMAIL_SENT
+REPLY_RECEIVED
+FOLLOW_UP_SCHEDULED
+FOLLOW_UP_SENT
+MEETING_REQUESTED
+STATUS_CHANGED
+
+============================================================
+66. LEAD TIMELINE
+============================================================
+
+Timeline should combine:
+
+job events
+research events
+email events
+reply events
+follow-up events
+status events
+user actions
+
+Sort descending or ascending based on UI.
+
+============================================================
+67. FRONTEND NOTIFICATIONS
+============================================================
+
+Show:
+
+New reply received
+Follow-up due
+Follow-up overdue
+Email failed
+Email bounced
+New high-opportunity lead
+Search completed
+
+============================================================
+68. FOLLOW-UP ALERTS
+============================================================
+
+Dashboard cards:
+
+FOLLOW-UPS DUE TODAY
+OVERDUE FOLLOW-UPS
+UPCOMING FOLLOW-UPS
+
+Click card → filtered Follow-up page.
+
+============================================================
+69. REPLY ALERTS
+============================================================
+
+Dashboard:
+
+NEW REPLIES
+
+Example:
+
+3 new replies
+
+Click:
+
+Inbox / Replies
+
+============================================================
+70. PRIORITY
+============================================================
+
+Calculate:
+
+LOW
+MEDIUM
+HIGH
+URGENT
+
+based on:
+
+lead score
+opportunity score
+reply intent
+meeting request
+follow-up due
+
+============================================================
+71. FRONTEND DESIGN
+============================================================
+
+Use:
+
+Next.js
+TypeScript
+TailwindCSS
+shadcn/ui
+Lucide
+Recharts
+
+Premium B2B SaaS style.
+
+The interface must feel like:
+
+HubSpot + Apollo + modern enterprise dashboard
+
+but DO NOT copy their UI.
+
+Use:
+
+clean typography
+cards
+tables
+filters
+drawers
+modals
+timelines
+charts
+status badges
+responsive layout
+
+============================================================
+72. LEAD DETAIL UI
+============================================================
+
+Top:
+
+Company Name
+Job Title
+Location
+Lead Score
+Botivate Opportunity
+Current Status
+
+Actions:
+
+Send Email
+Schedule Follow-up
+Edit
+Change Status
+Add Note
+Open Website
+
+Tabs:
+
+Overview
+Job
+Company
+Email
+Conversation
+Follow-ups
+Activity
+
+============================================================
+73. EMAIL DETAILS
+============================================================
+
+Show:
+
+From
+To
+CC
+Subject
+Template
+Sent Date
+Status
+Message ID
+Campaign
+
+Then body.
+
+============================================================
+74. REPLY DETAILS
+============================================================
+
+Show:
+
+From
+Received
+Subject
+Intent
+Sentiment
+AI Summary
+
+Then full reply.
+
+Then:
+
+Suggested Response
+
+Buttons:
+
+Reply
+Schedule Follow-up
+Change Status
+Add Note
+
+============================================================
+75. EMAIL QUEUE PAGE
+============================================================
+
+Columns:
+
+Recipient
+Company
+Subject
+Queue Status
+Scheduled
+Attempts
+Last Error
+
+Filters:
+
+Pending
+Processing
+Sent
+Failed
+Retry
+Cancelled
+
+============================================================
+76. EMAIL DELIVERY DASHBOARD
+============================================================
+
+Metrics:
+
+Total Sent
+Successful
+Failed
+Bounced
+Replies
+Reply Rate
+
+If delivery/open tracking unavailable:
+
+clearly state:
+
+"Provider tracking unavailable."
+
+============================================================
+77. REPLY RATE
+============================================================
+
+Calculate:
+
+Reply Rate =
+Replies / Successfully Sent Emails × 100
+
+Do not include failed emails.
+
+============================================================
+78. FOLLOW-UP ANALYTICS
+============================================================
+
+Show:
+
+Scheduled
+Sent
+Cancelled
+Skipped
+Due
+Overdue
+Reply After Follow-up
+
+============================================================
+79. SALES ANALYTICS
+============================================================
+
+Charts:
+
+Leads by State
+Leads by Source
+Leads by Job Title
+Emails Sent by Day
+Replies by Day
+Follow-ups by Day
+Reply Rate
+Opportunity Score
+Lead Conversion
+Meetings Requested
+
+============================================================
+80. AUDITABILITY
+============================================================
+
+Every email must be traceable.
+
+From:
+
+Job
+
+to:
+
+Company
+
+to:
+
+Lead
+
+to:
+
+Email
+
+to:
+
+Queue
+
+to:
+
+Sent Event
+
+to:
+
+Reply
+
+to:
+
+Follow-up
+
+to:
+
+Conversation
+
+No orphaned activity.
+
+============================================================
+81. SECURITY
+============================================================
+
+Never expose:
+
+OPENAI_API_KEY
+Google private keys
+OAuth secrets
+Gmail credentials
+App passwords
+
+in frontend.
+
+Never put secrets in Google Sheet.
+
+============================================================
+82. EMAIL TEST MODE
+============================================================
+
+EMAIL_TEST_MODE=true
+
+When enabled:
+
+all outgoing emails go to TEST_EMAIL.
+
+Frontend banner:
+
+TEST MODE ENABLED
+
+Every email event should indicate:
+
+TEST_MODE
+
+============================================================
+83. SUPPRESSION LIST
+============================================================
+
+Before every send:
+
+Check:
+
+SUPPRESSION_LIST
+
+If recipient exists:
+
+SKIPPED
+
+reason:
+
+SUPPRESSED
+
+Also support:
+
+company-level suppression.
+
+============================================================
+84. UNSUBSCRIBE / STOP REQUEST
+============================================================
+
+If a reply contains:
+
+unsubscribe
+remove me
+do not contact
+stop emailing
+not interested in further emails
+
+AI should classify:
+
+UNSUBSCRIBE
+
+Then:
+
+add recipient to SUPPRESSION_LIST.
+
+Cancel pending follow-ups.
+
+Set:
+
+lead.status = SUPPRESSED
+
+Do not send further emails.
+
+============================================================
+85. BOUNCE HANDLING
+============================================================
+
+If bounce is reliably detected:
+
+mark:
+
+BOUNCED
+
+Do not retry indefinitely.
+
+Add email to:
+
+invalid_email / suppression handling
+
+============================================================
+86. RETRY RULES
+============================================================
+
+Transient errors:
+
+retry.
+
+Permanent errors:
+
+FAILED.
+
+Maximum attempts:
+
+3
+
+Use exponential backoff.
+
+============================================================
+87. RATE LIMITING
+============================================================
+
+Email queue must support:
+
+batch size
+
+delay
+
+quota checks
+
+safe sending rate
+
+Do not implement aggressive bulk sending.
+
+Respect Google/Gmail sending limits.
+
+============================================================
+88. OPENAI
+============================================================
+
+Use OpenAI as the AI model.
+
+Use structured outputs for:
+
+JobExtraction
+CompanyResearch
+EmailDiscovery
+OpportunityAnalysis
+LeadScore
+EmailGeneration
+ReplyAnalysis
+
+Do not parse unreliable free-form JSON when structured outputs are available.
+
+============================================================
+89. SEARCH
+============================================================
+
+Use Google Web Search / configured Google search mechanism.
+
+Generate multiple queries.
+
+Search jobs only within selected location.
+
+Example:
+
+"MIS Executive" "Raipur" "Chhattisgarh"
+
+site:naukri.com "MIS Executive" "Raipur"
+
+site:indeed.com "MIS Executive" "Raipur"
+
+site:linkedin.com/jobs "MIS Executive" "Raipur"
+
+etc.
+
+Do not search worldwide when state/city filters are selected.
+
+============================================================
+90. SOURCE-SPECIFIC SEARCH
+============================================================
+
+Source Manager should dynamically construct:
+
+site queries
+
+based on:
+
+job title
+state
+city
+date
+
+Do not hardcode only MIS Executive.
+
+============================================================
+91. LOCATION NORMALIZATION
+============================================================
+
+Examples:
+
+Raipur, CG
+Raipur, Chhattisgarh
+Raipur
+
+normalize:
+
+Raipur
+Chhattisgarh
+
+Support:
+
+all Indian states.
+
+============================================================
+92. SEARCH HISTORY
+============================================================
+
+SEARCH_RUNS:
+
+run_id
+query
+job_title
+state
+city
+sources
+date_filter
+results
+qualified
+companies
+emails
+leads
+status
+started_at
+completed_at
+
+============================================================
+93. SEARCH RUN PAGE
+============================================================
+
+Show real-time progress.
+
+Example:
+
+Search Started
+
+Naukri        31 found
+Indeed        22 found
+LinkedIn      17 found
+Apna          11 found
+Foundit       14 found
+
+Duplicates Removed: 21
+
+Qualified: 74
+
+Companies: 61
+
+Business Emails: 43
+
+Leads: 43
+
+Emails Generated: 43
+
+============================================================
+94. NO FAKE PROGRESS
+============================================================
+
+Never show fake numbers.
+
+Progress must come from actual backend events.
+
+============================================================
+95. REAL-TIME FRONTEND
+============================================================
+
+Use SSE or WebSockets.
+
+Events:
+
+search_progress
+source_status
+job_found
+company_found
+email_found
+lead_created
+email_generated
+email_sent
+reply_received
+follow_up_due
+
+============================================================
+96. GOOGLE SHEET DATABASE SCHEMA
+============================================================
+
+Create exact headers.
+
+CONFIG:
+
+key
+value
+description
+updated_at
+
+JOBS:
+
+job_id
+source
+source_job_id
+job_title
+company_id
+company_name
+location
+city
+state
+job_url
+source_url
+description
+posted_date
+extraction_confidence
+created_at
+updated_at
+
+COMPANIES:
+
+company_id
+company_name
+normalized_name
+official_website
+domain
+industry
+city
+state
+website_confidence
+research_status
+created_at
+updated_at
+
+CONTACTS:
+
+contact_id
+company_id
+contact_name
+designation
+email
+email_type
+email_source_url
+email_confidence
+verification_status
+created_at
+updated_at
+
+LEADS:
+
+lead_id
+company_id
+job_id
+contact_id
+lead_score
+botivate_opportunity_score
+priority
+status
+next_action
+next_action_date
+last_activity_at
+created_at
+updated_at
+
+EMAIL_DRAFTS:
+
+email_id
+lead_id
+template_id
+recipient_email
+sender_email
+subject
+plain_text_body
+html_body
+status
+created_at
+updated_at
+
+EMAIL_QUEUE:
+
+queue_id
+email_id
+lead_id
+recipient_email
+sender_email
+subject
+body
+scheduled_at
+status
+attempts
+max_attempts
+last_attempt_at
+sent_at
+message_id
+error_message
+created_at
+updated_at
+
+EMAIL_EVENTS:
+
+event_id
+email_id
+lead_id
+company_id
+event_type
+timestamp
+message_id
+metadata
+created_at
+
+FOLLOW_UPS:
+
+follow_up_id
+lead_id
+company_id
+original_email_id
+sequence_number
+template_id
+subject
+body
+scheduled_at
+status
+sent_at
+message_id
+reply_received
+cancelled_at
+created_at
+updated_at
+
+REPLIES:
+
+reply_id
+lead_id
+company_id
+email_id
+thread_id
+message_id
+from_email
+from_name
+subject
+body_text
+received_at
+reply_type
+sentiment
+ai_summary
+requires_action
+action_type
+created_at
+
+CONVERSATIONS:
+
+conversation_id
+lead_id
+company_id
+thread_id
+status
+last_message_at
+last_message_direction
+message_count
+created_at
+updated_at
+
+CAMPAIGNS:
+
+campaign_id
+name
+description
+job_title
+state
+city
+template_id
+status
+created_at
+updated_at
+
+ACTIVITY_LOG:
+
+activity_id
+lead_id
+company_id
+activity_type
+description
+metadata
+created_at
+created_by
+
+SUPPRESSION_LIST:
+
+suppression_id
+email
+company_id
+reason
+source
+created_at
+
+============================================================
+97. GOOGLE APPS SCRIPT FILES
+============================================================
+
+apps-script/
+
+Code.gs
+Config.gs
+SheetRepository.gs
+EmailSender.gs
+QueueWorker.gs
+FollowUpWorker.gs
+ReplyScanner.gs
+EventLogger.gs
+Utils.gs
+
+============================================================
+98. EMAIL QUEUE WORKER
+============================================================
+
+Every execution:
+
+1. Acquire LockService lock.
+2. Read pending queue.
+3. Check schedule.
+4. Check suppression.
+5. Check lead reply.
+6. Check status.
+7. Send email.
+8. Store message ID.
+9. Write SENT event.
+10. Update lead.
+11. Release lock.
+
+============================================================
+99. FOLLOW-UP WORKER
+============================================================
+
+Every execution:
+
+1. Acquire lock.
+2. Find scheduled follow-ups due.
+3. Check reply.
+4. Check suppression.
+5. Check cancellation.
+6. Send.
+7. Update status.
+8. Create event.
+9. Update lead.
+10. Release lock.
+
+============================================================
+100. REPLY SCANNER
+============================================================
+
+Every execution:
+
+1. Read recent Gmail threads.
+2. Identify campaign conversations.
+3. Detect new incoming messages.
+4. Avoid duplicate processing.
+5. Store reply.
+6. Analyze with OpenAI.
+7. Update lead.
+8. Cancel pending follow-ups.
+9. Create activity.
+10. Show notification in frontend.
+
+============================================================
+101. REPLY MATCHING
+============================================================
+
+Use:
+
+Gmail thread ID
+Message ID
+In-Reply-To
+References
+recipient
+subject
+
+Priority:
+
+THREAD_ID
+MESSAGE_HEADERS
+MESSAGE_ID_RELATIONSHIP
+SUBJECT + PARTICIPANT
+
+Never rely only on subject.
+
+============================================================
+102. FRONTEND REPLY NOTIFICATION
+============================================================
+
+When a new reply appears:
+
+Show:
+
+NEW REPLY
+
+Company:
+ABC Pvt Ltd
+
+From:
+hr@abc.com
+
+Intent:
+MEETING REQUEST
+
+Received:
+29 Aug 2026 09:21
+
+Click:
+
+Open Conversation
+
+============================================================
+103. "WHERE WAS EMAIL SENT?" VIEW
+============================================================
+
+Create:
+
+OUTREACH OVERVIEW
+
+Table:
+
+Company
+Job
+Email
+Email Sent?
+Sent Date
+Reply?
+Reply Date
+Follow-up?
+Next Follow-up
+Current Status
+
+Example:
+
+ABC Ltd
+MIS Executive
+hr@abc.com
+YES
+21 Aug
+YES
+22 Aug
+NO
+25 Aug
+REPLIED
+
+XYZ Ltd
+MIS Executive
+info@xyz.com
+NO
+-
+NO
+-
+SCHEDULED
+26 Aug
+APPROVED
+
+============================================================
+104. "NOT SENT" VIEW
+============================================================
+
+One-click filter:
+
+NOT SENT
+
+Shows:
+
+qualified leads
+with valid emails
+but no successful initial outreach.
+
+============================================================
+105. "REPLIED" VIEW
+============================================================
+
+Show:
+
+Company
+Contact
+Last Email
+Reply Date
+Intent
+Sentiment
+Next Action
+Status
+
+============================================================
+106. "FOLLOW-UP DUE" VIEW
+============================================================
+
+Show:
+
+Company
+Last Contact
+Follow-up Number
+Due Date
+Days Overdue
+Reply Status
+Action
+
+============================================================
+107. "ALL ACTIVITY" VIEW
+============================================================
+
+Timeline across all companies.
+
+Filters:
+
+Date
+Company
+Campaign
+Activity Type
+Source
+Status
+
+============================================================
+108. GLOBAL SEARCH
+============================================================
+
+Search:
+
+company name
+email
+job title
+city
+state
+domain
+message ID
+thread ID
+
+============================================================
+109. EXPORT
+============================================================
+
+Allow export:
+
+CSV
+
+for:
+
+Jobs
+Companies
+Leads
+Emails
+Replies
+Follow-ups
+Campaigns
+
+============================================================
+110. NOTES
+============================================================
+
+Allow manual notes per lead.
+
+LEAD_NOTES:
+
+note_id
+lead_id
+note
+created_by
+created_at
+
+============================================================
+111. MANUAL STATUS
+============================================================
+
+User can manually change:
+
+lead status
+
+and:
+
+next action
+
+Every manual change creates:
+
+ACTIVITY_LOG
+
+============================================================
+112. MANUAL EMAIL
+============================================================
+
+Allow user to create a manual email inside a lead.
+
+It should still go through:
+
+EMAIL_QUEUE
+
+and maintain full tracking.
+
+============================================================
+113. MANUAL FOLLOW-UP
+============================================================
+
+User can create:
+
+custom follow-up
+
+subject
+body
+date
+time
+
+Then:
+
+SCHEDULED
+
+============================================================
+114. NO DIRECT FRONTEND EMAIL SEND
+============================================================
+
+Frontend must NEVER directly send email.
+
+Frontend:
+
+creates/approves queue item.
+
+Google Apps Script:
+
+actually sends.
+
+============================================================
+115. CONFIGURATION
+============================================================
+
+.env.example
+
+OPENAI_API_KEY=
+OPENAI_MODEL=
+
+GOOGLE_SEARCH_API_KEY=
+GOOGLE_SEARCH_ENGINE_ID=
+
+GOOGLE_SHEETS_ID=
+
+GOOGLE_SERVICE_ACCOUNT_EMAIL=
+GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY=
+
+BOTIVATE_SENDER_EMAIL=
+BOTIVATE_SENDER_NAME=Satyendra Kumar Tandan
+
+BOTIVATE_WEBSITE_URL=
+AUTOROCKET_WEBSITE_URL=
+
+APPS_SCRIPT_WEB_APP_URL=
+
+EMAIL_TEST_MODE=true
+TEST_EMAIL=
+
+MOCK_MODE=false
+
+QUEUE_BATCH_SIZE=10
+QUEUE_MAX_ATTEMPTS=3
+
+MAX_FOLLOW_UPS=4
+
+============================================================
+116. PROJECT STRUCTURE
+============================================================
+
+botivate-job-intelligence/
+
+frontend/
+backend/
+apps-script/
+docs/
+tests/
+
+============================================================
+117. BACKEND
+============================================================
+
+Use FastAPI.
+
+Structure:
+
+backend/app/
+
+api/
+agents/
+services/
+sources/
+repositories/
+models/
+schemas/
+prompts/
+workers/
+integrations/
+utils/
+config/
+
+============================================================
+118. API ENDPOINTS
+============================================================
+
+POST /api/search
+
+GET /api/search/{run_id}
+
+GET /api/sources
+
+GET /api/jobs
+
+GET /api/companies
+
+GET /api/leads
+
+GET /api/leads/{id}
+
+POST /api/leads/{id}/generate-email
+
+POST /api/emails/{id}/approve
+
+POST /api/emails/{id}/reject
+
+POST /api/emails/{id}/queue
+
+GET /api/emails
+
+GET /api/email-queue
+
+GET /api/follow-ups
+
+POST /api/follow-ups
+
+PATCH /api/follow-ups/{id}
+
+POST /api/follow-ups/{id}/cancel
+
+POST /api/follow-ups/{id}/send-now
+
+GET /api/replies
+
+GET /api/replies/{id}
+
+GET /api/conversations/{lead_id}
+
+GET /api/activity
+
+GET /api/campaigns
+
+GET /api/analytics
+
+GET /api/dashboard
+
+GET /api/health
+
+============================================================
+119. FRONTEND ROUTES
+============================================================
+
+/
+
+dashboard
+
+/search
+
+/search/[id]
+
+/sources
+
+/jobs
+
+/jobs/[id]
+
+/companies
+
+/companies/[id]
+
+/leads
+
+/leads/[id]
+
+/outreach
+
+/outreach/sent
+
+/outreach/not-sent
+
+/outreach/replied
+
+/follow-ups
+
+/follow-ups/calendar
+
+/inbox
+
+/inbox/[id]
+
+/email-queue
+
+/campaigns
+
+/campaigns/[id]
+
+/analytics
+
+/activity
+
+/settings
+
+============================================================
+120. DASHBOARD CARDS
+============================================================
+
+Create clickable cards:
+
+TOTAL LEADS
+
+EMAILS NOT SENT
+
+EMAILS SENT
+
+REPLIES
+
+FOLLOW-UPS DUE
+
+FOLLOW-UPS OVERDUE
+
+MEETINGS
+
+HIGH OPPORTUNITY
+
+Each card navigates to filtered data.
+
+============================================================
+121. EMAIL HISTORY
+============================================================
+
+For each lead show:
+
+Initial Email
+Follow-up #1
+Follow-up #2
+Follow-up #3
+Follow-up #4
+
+Each with:
+
+status
+date
+subject
+recipient
+message ID
+reply status
+
+============================================================
+122. COMPLETE COMPANY COMMUNICATION HISTORY
+============================================================
+
+For company:
+
+All jobs
+All contacts
+All emails
+All replies
+All follow-ups
+All activities
+
+must be visible.
+
+============================================================
+123. FOLLOW-UP DATE CONTROL
+============================================================
+
+The user explicitly decides dates.
+
+Example:
+
+User selects:
+
+Follow-up #1:
+25 Aug 2026
+
+Follow-up #2:
+01 Sep 2026
+
+Follow-up #3:
+08 Sep 2026
+
+System stores these dates.
+
+No follow-up is sent before scheduled time.
+
+============================================================
+124. FOLLOW-UP AUTO-CANCEL
+============================================================
+
+If company replies:
+
+All pending follow-ups:
+
+CANCELLED / SKIPPED
+
+reason:
+
+REPLY_RECEIVED
+
+============================================================
+125. FOLLOW-UP OVERDUE
+============================================================
+
+If:
+
+scheduled_at < current_time
+
+and status != SENT
+
+mark:
+
+DUE
+
+and show:
+
+OVERDUE
+
+if appropriate.
+
+============================================================
+126. USER CONTROL
+============================================================
+
+The user can:
+
+Send Now
+Schedule
+Reschedule
+Cancel
+Skip
+Edit
+Change Template
+
+============================================================
+127. AI SHOULD NOT OVERRIDE USER
+============================================================
+
+AI can recommend:
+
+"Follow up recommended"
+
+but user decides.
+
+AI must not silently schedule or send follow-ups.
+
+============================================================
+128. REPLY SHOULD CHANGE THE PIPELINE
+============================================================
+
+When reply received:
+
+CONTACTED
+→
+REPLIED
+
+AI determines:
+
+INTERESTED
+MEETING_REQUESTED
+REQUEST_FOR_DETAILS
+NOT_INTERESTED
+etc.
+
+============================================================
+129. MEETING TRACKING
+============================================================
+
+If reply indicates meeting request:
+
+create:
+
+MEETING_REQUESTED
+
+User can manually set:
+
+MEETING_SCHEDULED
+MEETING_COMPLETED
+PROPOSAL_SENT
+WON
+LOST
+
+============================================================
+130. SALES PIPELINE
+============================================================
+
+Support:
+
+DISCOVERED
+QUALIFIED
+CONTACTED
+REPLIED
+INTERESTED
+MEETING_REQUESTED
+MEETING_SCHEDULED
+MEETING_COMPLETED
+PROPOSAL_SENT
+WON
+LOST
+
+============================================================
+131. FRONTEND PIPELINE BOARD
+============================================================
+
+Create Kanban.
+
+Columns:
+
+New
+Qualified
+Contacted
+Replied
+Interested
+Meeting
+Proposal
+Won
+Lost
+
+Cards show:
+
+Company
+Job
+Score
+Last activity
+Next action
+
+============================================================
+132. ANALYTICS
+============================================================
+
+Metrics:
+
+Total Leads
+Sent
+Reply Rate
+Positive Reply Rate
+Follow-up Reply Rate
+Meeting Rate
+Conversion Rate
+
+Charts:
+
+Leads by Source
+Leads by State
+Emails by Day
+Replies by Day
+Follow-ups by Day
+Pipeline
+Opportunity Score
+Campaign Performance
+
+============================================================
+133. DATE RANGE ANALYTICS
+============================================================
+
+Allow:
+
+Today
+7 Days
+30 Days
+90 Days
+Custom
+
+============================================================
+134. DATA CONSISTENCY
+============================================================
+
+Every action must update:
+
+primary entity
+
+and:
+
+activity log
+
+and:
+
+appropriate event table.
+
+============================================================
+135. IDEMPOTENCY
+============================================================
+
+Sending operations must be idempotent.
+
+Never send the same queue item twice.
+
+Never process the same reply twice.
+
+Never create duplicate follow-up events.
+
+============================================================
+136. ERROR RECOVERY
+============================================================
+
+If Apps Script crashes:
+
+queue item remains PENDING/RETRY.
+
+If reply scanner fails:
+
+next execution should continue.
+
+If OpenAI fails:
+
+reply remains UNANALYZED.
+
+If Google Sheets API fails:
+
+retry.
+
+============================================================
+137. TESTING
+============================================================
+
+Create tests for:
+
+job extraction
+location filtering
+deduplication
+company matching
+email discovery
+lead scoring
+email generation
+queue processing
+duplicate protection
+follow-up scheduling
+follow-up cancellation
+reply matching
+reply classification
+pipeline update
+
+============================================================
+138. END-TO-END TEST
+============================================================
+
+Test scenario:
+
+Search:
+
+MIS Executive
+Chhattisgarh
+Raipur
+Last 30 Days
+
+System:
+
+1. finds jobs
+2. filters location
+3. identifies companies
+4. researches companies
+5. finds public business emails
+6. creates leads
+7. calculates opportunity score
+8. generates email
+9. user approves
+10. queue created
+11. Apps Script sends test email
+12. sent event created
+13. user schedules follow-up
+14. follow-up appears on calendar
+15. follow-up becomes due
+16. worker checks for reply
+17. if no reply → sends follow-up
+18. if reply exists → skips follow-up
+19. reply scanner detects response
+20. reply appears in Inbox
+21. AI analyzes response
+22. lead status changes
+23. pending follow-ups are cancelled
+24. activity timeline updates
+
+============================================================
+139. TEST MODE
+============================================================
+
+During development:
+
+EMAIL_TEST_MODE=true
+
+TEST_EMAIL must receive all messages.
+
+Never accidentally send to real companies during development.
+
+============================================================
+140. DOCUMENTATION
+============================================================
+
+Create:
+
+README.md
+
+docs/architecture.md
+docs/google-sheets.md
+docs/apps-script.md
+docs/gmail.md
+docs/openai.md
+docs/search.md
+docs/email-tracking.md
+docs/follow-ups.md
+docs/replies.md
+docs/deployment.md
+docs/security.md
+docs/troubleshooting.md
+
+============================================================
+141. IMPORTANT LIMITATIONS
+============================================================
+
+Clearly document:
+
+Some job portals may block automated access.
+
+Some websites may require login.
+
+Some websites may have anti-bot systems.
+
+Email open tracking may not be reliably available.
+
+Delivery status may not always be available.
+
+Gmail sending quotas apply.
+
+Google Apps Script execution limits apply.
+
+Google Sheets has scalability limitations.
+
+The system must NEVER pretend otherwise.
+
+============================================================
+142. FINAL PRODUCT EXPERIENCE
+============================================================
+
+The user should be able to open the dashboard and immediately see:
+
+------------------------------------------------------------
+
+BOTIVATE OUTREACH COMMAND CENTER
+
+Today
+
+47 Jobs Found
+29 Companies
+22 Qualified Leads
+15 Emails Sent
+3 Replies
+7 Follow-ups Due
+2 Overdue
+1 Meeting Requested
+
+------------------------------------------------------------
+
+TODAY'S FOLLOW-UPS
+
+ABC Ltd        Follow-up #1    Due Today
+XYZ Ltd        Follow-up #2    Due Today
+PQR Ltd        Follow-up #1    Overdue
+
+------------------------------------------------------------
+
+NEW REPLIES
+
+ABC Ltd        Meeting Request
+DEF Ltd        Interested
+GHI Ltd        Request for Details
+
+------------------------------------------------------------
+
+RECENT OUTREACH
+
+ABC Ltd        SENT      21 Aug
+XYZ Ltd        SENT      21 Aug
+PQR Ltd        FAILED    21 Aug
+LMN Ltd        NOT SENT
+
+------------------------------------------------------------
+
+PIPELINE
+
+Qualified     42
+Contacted     31
+Replied        8
+Interested     5
+Meetings       2
+
+============================================================
+143. FINAL BUILD INSTRUCTION
+============================================================
+
+Do not only explain the architecture.
+
+BUILD THE ACTUAL SYSTEM.
+
+First inspect the existing repository.
+
+Then implement incrementally.
+
+Do not destroy existing working code.
+
+Use reusable services and components.
+
+Do not create fake API results.
+
+Do not create fake job records.
+
+Do not create fake emails.
+
+Do not create fake replies.
+
+Do not claim SENT unless the email worker confirms it.
+
+Do not claim REPLIED unless Gmail/Google Workspace confirms it.
+
+Do not fabricate OPENED/DELIVERED status.
+
+Do not send follow-ups automatically unless:
+
+the user has explicitly scheduled them
+or explicitly enabled an automation rule.
+
+The frontend must provide complete visibility into:
+
+WHERE EMAIL WAS SENT
+WHERE EMAIL WAS NOT SENT
+WHEN IT WAS SENT
+WHICH EMAIL WAS SENT
+WHICH TEMPLATE WAS USED
+WHETHER IT FAILED
+WHETHER IT BOUNCED
+WHETHER A REPLY ARRIVED
+WHAT THE REPLY SAID
+WHEN THE REPLY ARRIVED
+WHAT AI THINKS THE REPLY MEANS
+WHAT FOLLOW-UP IS SCHEDULED
+WHEN THE FOLLOW-UP IS DUE
+WHETHER FOLLOW-UP WAS SENT
+HOW MANY FOLLOW-UPS WERE SENT
+WHAT THE NEXT ACTION IS
+COMPLETE COMMUNICATION TIMELINE
+
+At the end provide:
+
+1. Complete architecture
+2. Files created
+3. Files modified
+4. Google Sheet schema
+5. Apps Script code/setup
+6. OpenAI setup
+7. Google Search setup
+8. Gmail setup
+9. Environment variables
+10. Local run commands
+11. Production deployment
+12. Testing instructions
+13. Known limitations
+14. Security considerations
+
+BUILD THE COMPLETE BOTIVATE JOB INTELLIGENCE,
+OUTREACH, FOLLOW-UP, REPLY TRACKING AND SALES COMMAND CENTER.

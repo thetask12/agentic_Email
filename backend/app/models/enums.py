@@ -1,0 +1,230 @@
+"""
+All enums mirrored 1:1 from docs/sheet-schema.md. Keep in sync.
+"""
+from enum import Enum
+
+
+class SearchRunStatus(str, Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+
+
+class ResearchStatus(str, Enum):
+    PENDING = "PENDING"
+    RESEARCHING = "RESEARCHING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    NOT_FOUND = "NOT_FOUND"
+
+
+class EmailType(str, Enum):
+    GENERIC = "GENERIC"
+    HR = "HR"
+    FOUNDER = "FOUNDER"
+    DEPARTMENT = "DEPARTMENT"
+    UNKNOWN = "UNKNOWN"
+
+
+class VerificationStatus(str, Enum):
+    UNVERIFIED = "UNVERIFIED"
+    VERIFIED = "VERIFIED"
+    INVALID = "INVALID"
+
+
+class LeadStatus(str, Enum):
+    NEW = "NEW"
+    QUALIFIED = "QUALIFIED"
+    EMAIL_DRAFTED = "EMAIL_DRAFTED"
+    APPROVED = "APPROVED"
+    QUEUED = "QUEUED"
+    CONTACTED = "CONTACTED"
+    REPLIED = "REPLIED"
+    FOLLOW_UP_DUE = "FOLLOW_UP_DUE"
+    FOLLOW_UP_SENT = "FOLLOW_UP_SENT"
+    IN_CONVERSATION = "IN_CONVERSATION"
+    MEETING_REQUESTED = "MEETING_REQUESTED"
+    MEETING_SCHEDULED = "MEETING_SCHEDULED"
+    MEETING_COMPLETED = "MEETING_COMPLETED"
+    PROPOSAL_SENT = "PROPOSAL_SENT"
+    INTERESTED = "INTERESTED"
+    NOT_INTERESTED = "NOT_INTERESTED"
+    BOUNCED = "BOUNCED"
+    NO_RESPONSE = "NO_RESPONSE"
+    SUPPRESSED = "SUPPRESSED"
+    WON = "WON"
+    LOST = "LOST"
+    CLOSED = "CLOSED"
+
+
+class RecommendedSolution(str, Enum):
+    AUTOROCKET = "AUTOROCKET"
+    CUSTOM_AUTOMATION = "CUSTOM_AUTOMATION"
+    BOTH = "BOTH"
+    MANUAL_REVIEW = "MANUAL_REVIEW"
+
+
+class Priority(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    URGENT = "URGENT"
+
+
+class NextAction(str, Enum):
+    CALL = "CALL"
+    SEND_PROFILE = "SEND_PROFILE"
+    SEND_PRICING = "SEND_PRICING"
+    SCHEDULE_MEETING = "SCHEDULE_MEETING"
+    FOLLOW_UP = "FOLLOW_UP"
+    WAIT_FOR_REPLY = "WAIT_FOR_REPLY"
+    SEND_DEMO = "SEND_DEMO"
+    SEND_PROPOSAL = "SEND_PROPOSAL"
+    NO_ACTION = "NO_ACTION"
+    CLOSE = "CLOSE"
+
+
+class TemplateCategory(str, Enum):
+    INITIAL = "INITIAL"
+    FOLLOW_UP = "FOLLOW_UP"
+
+
+class EmailDraftStatus(str, Enum):
+    DRAFT = "DRAFT"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    QUEUED = "QUEUED"
+    SENT = "SENT"
+
+
+class QueueKind(str, Enum):
+    INITIAL = "INITIAL"
+    FOLLOW_UP = "FOLLOW_UP"
+    MANUAL = "MANUAL"
+
+
+class QueueStatus(str, Enum):
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    SENT = "SENT"
+    RETRY = "RETRY"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+    SKIPPED = "SKIPPED"
+
+
+class EmailEventType(str, Enum):
+    CREATED = "CREATED"
+    APPROVED = "APPROVED"
+    QUEUED = "QUEUED"
+    PROCESSING = "PROCESSING"
+    SENT = "SENT"
+    DELIVERED = "DELIVERED"
+    BOUNCED = "BOUNCED"
+    FAILED = "FAILED"
+    OPENED = "OPENED"
+    CLICKED = "CLICKED"
+    REPLIED = "REPLIED"
+    FOLLOW_UP_SCHEDULED = "FOLLOW_UP_SCHEDULED"
+    FOLLOW_UP_SENT = "FOLLOW_UP_SENT"
+    CANCELLED = "CANCELLED"
+
+
+class FollowUpStatus(str, Enum):
+    DRAFT = "DRAFT"
+    SCHEDULED = "SCHEDULED"
+    DUE = "DUE"
+    QUEUED = "QUEUED"
+    SENT = "SENT"
+    CANCELLED = "CANCELLED"
+    SKIPPED = "SKIPPED"
+    FAILED = "FAILED"
+
+
+class ReplyType(str, Enum):
+    INTERESTED = "INTERESTED"
+    REQUEST_FOR_DETAILS = "REQUEST_FOR_DETAILS"
+    MEETING_REQUEST = "MEETING_REQUEST"
+    POSITIVE = "POSITIVE"
+    NEUTRAL = "NEUTRAL"
+    NOT_INTERESTED = "NOT_INTERESTED"
+    ASK_LATER = "ASK_LATER"
+    OUT_OF_OFFICE = "OUT_OF_OFFICE"
+    BOUNCE = "BOUNCE"
+    UNSUBSCRIBE = "UNSUBSCRIBE"
+    UNKNOWN = "UNKNOWN"
+
+
+class Sentiment(str, Enum):
+    POSITIVE = "POSITIVE"
+    NEUTRAL = "NEUTRAL"
+    NEGATIVE = "NEGATIVE"
+
+
+class ConversationStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    WAITING = "WAITING"
+    CLOSED = "CLOSED"
+
+
+class MessageDirection(str, Enum):
+    OUTBOUND = "OUTBOUND"
+    INBOUND = "INBOUND"
+
+
+class CampaignStatus(str, Enum):
+    DRAFT = "DRAFT"
+    ACTIVE = "ACTIVE"
+    PAUSED = "PAUSED"
+    COMPLETED = "COMPLETED"
+    ARCHIVED = "ARCHIVED"
+
+
+class SuppressionReason(str, Enum):
+    UNSUBSCRIBE = "UNSUBSCRIBE"
+    BOUNCE = "BOUNCE"
+    MANUAL = "MANUAL"
+    COMPLAINT = "COMPLAINT"
+
+
+class SourceStatusValue(str, Enum):
+    OK = "OK"
+    BLOCKED = "BLOCKED"
+    UNAVAILABLE = "UNAVAILABLE"
+    RATE_LIMITED = "RATE_LIMITED"
+
+
+class JobSource(str, Enum):
+    NAUKRI = "naukri"
+    INDEED = "indeed"
+    LINKEDIN = "linkedin"
+    APNA = "apna"
+    FOUNDIT = "foundit"
+    TIMESJOBS = "timesjobs"
+    WORKINDIA = "workindia"
+    SHINE = "shine"
+    INTERNSHALA = "internshala"
+    COMPANY_CAREERS = "company_careers"
+    GOOGLE_SEARCH = "google_search"
+
+
+class ActivityType(str, Enum):
+    JOB_FOUND = "JOB_FOUND"
+    COMPANY_RESEARCHED = "COMPANY_RESEARCHED"
+    EMAIL_FOUND = "EMAIL_FOUND"
+    EMAIL_GENERATED = "EMAIL_GENERATED"
+    EMAIL_APPROVED = "EMAIL_APPROVED"
+    EMAIL_REJECTED = "EMAIL_REJECTED"
+    EMAIL_QUEUED = "EMAIL_QUEUED"
+    EMAIL_SENT = "EMAIL_SENT"
+    EMAIL_FAILED = "EMAIL_FAILED"
+    REPLY_RECEIVED = "REPLY_RECEIVED"
+    FOLLOW_UP_SCHEDULED = "FOLLOW_UP_SCHEDULED"
+    FOLLOW_UP_SENT = "FOLLOW_UP_SENT"
+    FOLLOW_UP_CANCELLED = "FOLLOW_UP_CANCELLED"
+    MEETING_REQUESTED = "MEETING_REQUESTED"
+    STATUS_CHANGED = "STATUS_CHANGED"
+    NOTE_ADDED = "NOTE_ADDED"
+    MANUAL_ACTION = "MANUAL_ACTION"
