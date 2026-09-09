@@ -208,9 +208,16 @@ async def run_one_cycle() -> dict:
                     "research_status": "COMPLETED",
                 })
 
+                # Always a generic "Dear Hiring Team," greeting — never the
+                # discovered company_name. That name is extracted from a
+                # search-result title heuristically (guess_company_name_from_title)
+                # and is unreliable enough (e.g. an aggregator page title like
+                # "AI Engineer Jobs In Bangalore" being mistaken for a real
+                # company name) that using it in the email itself risks an
+                # obviously wrong/odd greeting. The name is still used for
+                # internal tracking (COMPANIES sheet, dedup) — just not here.
                 generated = generate_application_email(
                     job_title=job_title, sender_email=settings.job_outreach_sender_email,
-                    company_name=company_name if name_known else "",
                 )
                 await email_queue_repo.create({
                     "queue_id": new_id("queue"), "company_id": company["company_id"],

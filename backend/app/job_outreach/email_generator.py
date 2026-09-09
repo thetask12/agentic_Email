@@ -1,14 +1,17 @@
 """
 Builds the short cold-application email for the Job Outreach module — NOT a
-sales pitch. Personalized only by the discovered company name (greeting)
-and the job title being applied for; the body itself is a fixed template,
-not AI-generated per company. The resume PDF itself is attached by Apps
-Script (EmailSender.gs, via RESUME_DRIVE_FILE_ID), not by this backend.
+sales pitch. The body is a fixed template, not AI-generated per company;
+the only thing that varies is the job title being applied for. The resume
+PDF itself is attached by Apps Script (EmailSender.gs, via
+RESUME_DRIVE_FILE_ID), not by this backend.
 
-A lead whose company name could not be confidently determined is still
-emailed (not dropped) — it just gets a generic "Dear Hiring Team,"
-greeting instead of "Dear {company_name} Team," (see
-generate_application_email).
+The greeting is always the generic "Dear Hiring Team," — deliberately NEVER
+the discovered company name. That name is extracted from a search-result
+title heuristically (guess_company_name_from_title in search.py) and is
+unreliable enough (e.g. an aggregator page title like "AI Engineer Jobs In
+Bangalore" being mistaken for a real company name) that using it in the
+email itself risks an obviously wrong/odd greeting going out. The name is
+still used for internal tracking (COMPANIES sheet, dedup) — just not here.
 """
 from __future__ import annotations
 
@@ -18,10 +21,8 @@ SUBJECT_TEMPLATE = "Application for {job_title}"
 
 # Short, plain-text application email. No inline images, no banners, no
 # signature GIF (see "Email content rules"). This is the exact copy agreed
-# with the candidate — {greeting} is filled in as either "Dear {company}
-# Team," or, when no company name could be confidently determined, the
-# generic "Dear Hiring Team,".
-BODY_TEMPLATE = """{greeting}
+# with the candidate.
+BODY_TEMPLATE = """Dear Hiring Team,
 
 I'm an Agentic AI Developer with close to a year of hands-on experience
 building production multi-agent LLM systems — LangChain, LangGraph, RAG
@@ -51,21 +52,15 @@ GitHub: {candidate_github}
 """
 
 
-def generate_application_email(*, job_title: str, sender_email: str, company_name: str = "") -> dict:
+def generate_application_email(*, job_title: str, sender_email: str) -> dict:
     """Returns {subject, body} for one application email. `sender_email` is
     this module's own sender identity (JOB_OUTREACH_SENDER_EMAIL) used only
     in the signature line — Apps Script decides the actual Gmail From
-    address (always whichever account authorized its triggers). `company_name`
-    controls the greeting: "Dear {company_name} Team," when known, or the
-    generic "Dear Hiring Team," when blank/not provided (a lead is never
-    dropped just because its company name couldn't be determined)."""
+    address (always whichever account authorized its triggers)."""
     settings = get_job_outreach_settings()
-    clean_name = company_name.strip() if company_name and company_name.strip() else ""
-    greeting = f"Dear {clean_name} Team," if clean_name else "Dear Hiring Team,"
     subject = SUBJECT_TEMPLATE.format(job_title=job_title)
     body = BODY_TEMPLATE.format(
         job_title=job_title,
-        greeting=greeting,
         candidate_name=settings.job_outreach_candidate_name,
         candidate_phone=settings.job_outreach_candidate_phone,
         candidate_email=sender_email,
