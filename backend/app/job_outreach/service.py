@@ -198,16 +198,19 @@ async def run_one_cycle() -> dict:
                             company_name = extraction.company_name
                     except Exception:
                         logger.exception("JOB_OUTREACH: AI company-name extraction failed for url=%r", raw.url)
-                name_known = bool(company_name)
                 if not company_name:
                     # Still unknown after both the heuristic and the AI
-                    # fallback — this is genuinely a generic listing page
-                    # with no single named employer. Don't drop the lead,
-                    # just dedupe by job URL instead of name (there's no name
-                    # to dedupe by); the email still goes out with the
-                    # generic "Dear Hiring Team," greeting (see
-                    # email_generator.py) since there's no real name to use.
-                    company_name = f"Unknown ({raw.url})" if raw.url else f"Unknown ({new_id('unk')})"
+                    # fallback — this is genuinely a generic listing/category
+                    # page (e.g. naukri.com/ai-engineer-jobs-in-bangalore-42)
+                    # with no single named employer at all. There's nothing
+                    # to research or email — skip it entirely rather than
+                    # creating a placeholder "Unknown" company and wasting a
+                    # research_company()/email-discovery attempt that's
+                    # guaranteed to fail (or worse, misidentify some
+                    # unrelated site as the "company").
+                    logger.info("JOB_OUTREACH: SKIP url=%r reason=no_company_name_found "
+                                "(generic listing/category page)", raw.url)
+                    continue
                 normalized = _normalize(company_name)
                 if await _already_seen_company(normalized):
                     continue
