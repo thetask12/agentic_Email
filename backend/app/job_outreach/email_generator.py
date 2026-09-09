@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from app.job_outreach.config import get_job_outreach_settings
 
-SUBJECT_TEMPLATE = "Application: {job_title}"
+SUBJECT_TEMPLATE = "Application for {job_title}"
 
 # Short, plain-text application email. No inline images, no banners, no
 # signature GIF (see "Email content rules"). This is the exact copy agreed
@@ -29,8 +29,8 @@ pipelines, and FastAPI, deployed end-to-end on Docker. I started as an
 AI intern and was promoted to a full-time Agentic AI Developer and AI
 Department Head within a year.
 
-I'm looking for a {job_title} role and would like to apply directly at
-your company. A quick snapshot of my background:
+I'm looking for a {job_title} role at your company. A quick snapshot of
+my background:
 
 - Design and ship production agentic AI systems — multi-agent
   orchestration, tool/function-calling, RAG with vector search (Qdrant,
