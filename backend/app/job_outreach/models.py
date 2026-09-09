@@ -12,11 +12,13 @@ class EmailType(str, Enum):
     UNKNOWN = "UNKNOWN"
 
 
-# Only these two email types are ever accepted as an outreach recipient —
-# same official-email-only filter rule as the main system. Anything else
-# (HR/DEPARTMENT/UNKNOWN) means the whole company is dropped, same as "no
-# email found".
-ACCEPTED_EMAIL_TYPES = (EmailType.GENERIC.value, EmailType.FOUNDER.value)
+# GENERIC, FOUNDER, and HR are all accepted as an outreach recipient for
+# this job-application use case — unlike the original sales-outreach
+# system (where HR/careers was rejected as "not the company's official
+# contact"), an HR/recruiting inbox is actually the intended audience for a
+# job application, not an irrelevant one. Only DEPARTMENT (unrelated team,
+# e.g. sales@/support@) and UNKNOWN (no email found) drop the company.
+ACCEPTED_EMAIL_TYPES = (EmailType.GENERIC.value, EmailType.FOUNDER.value, EmailType.HR.value)
 
 
 class ResearchStatus(str, Enum):
