@@ -55,13 +55,22 @@ async def start(max_companies: int | None = None) -> None:
     """Starts the automation loop. If max_companies is given (e.g. "1" for a
     quick manual test), the loop auto-stops itself as soon as that many NEW
     companies have been processed in this run — no need to remember to press
-    Stop. Leave it unset for the normal continuous-loop behavior."""
-    from app.job_outreach.scheduler import start_scheduler
+    Stop. Leave it unset for the normal continuous-loop behavior.
+
+    Also fires one cycle immediately in the background rather than waiting
+    for the scheduler's own tick — the background loop sleeps for
+    CYCLE_INTERVAL_SECONDS between checks and is already running from app
+    startup (independent of Start/Stop), so without this, pressing Start
+    could leave the user waiting up to that full interval before anything
+    visibly happens."""
+    import asyncio
+    from app.job_outreach.scheduler import start_scheduler, trigger_cycle_now
     await set_company_limit(max_companies)
     await reset_companies_found_this_run()
     await set_running(True)
     await _log_activity("AUTOMATION_STARTED", f"max_companies={max_companies or 'unlimited'}")
     start_scheduler()
+    asyncio.create_task(trigger_cycle_now())
 
 
 async def stop() -> None:

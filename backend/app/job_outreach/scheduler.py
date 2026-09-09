@@ -61,6 +61,15 @@ async def _scheduler_loop() -> None:
         await asyncio.sleep(CYCLE_INTERVAL_SECONDS)
 
 
+async def trigger_cycle_now() -> None:
+    """Runs one cycle immediately, guarded the same way as a normal scheduler
+    tick (skips if a cycle is already in flight) — called by service.start()
+    so pressing Start doesn't have to wait for the background loop's own
+    CYCLE_INTERVAL_SECONDS sleep to elapse."""
+    if await is_running():
+        await _run_cycle_guarded()
+
+
 def start_scheduler() -> None:
     """Ensures the background loop task exists. Safe to call repeatedly
     (e.g. every time service.start() is called) — a second call is a no-op
