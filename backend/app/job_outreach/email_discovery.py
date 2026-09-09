@@ -1,21 +1,21 @@
 """
-Company research + official-email discovery for the Job Outreach module —
-same two-agent pattern as app/agents/company_research.py (research_company +
-discover_email), reusing the shared app.integrations.openai_client
-structured_completion() and app.integrations.web_search.search() helpers
-(both generic, provider-level integrations safe to share across modules).
+Company research + official-email discovery for the Job Outreach module.
+Structured outputs are Pydantic BaseModel classes (see ai_client.py's
+client.beta.chat.completions.parse()) rather than raw JSON-schema dicts —
+type-checked, auto-validated results instead of a plain dict the caller has
+to trust field-by-field.
 
-PRIMARY discovery path is now fetch_emails_from_website(): once
-research_company() has confidently identified a company's actual official
-website, this reads that site's own pages directly (homepage, /contact,
-/about, /careers — a plain public GET, never a login/scrape of gated
-content) and extracts any visible email addresses with a regex. This is far
-more reliable than guessing an email from generic search-result snippets
-(the previous sole approach), which was occasionally matching an email from
-a completely unrelated page (e.g. a YouTube video that happened to mention
-the company's name) to the wrong company. discover_email() (the
-snippet-based AI classifier) is kept as a fallback for when the website
-fetch finds no email at all.
+PRIMARY discovery path is fetch_emails_from_website(): once research_company()
+has confidently identified a company's actual official website, this reads
+that site's own pages directly (homepage, /contact, /about, /careers — a
+plain public GET, never a login/scrape of gated content) and extracts any
+visible email addresses with a regex. This is far more reliable than
+guessing an email from generic search-result snippets (the previous sole
+approach), which was occasionally matching an email from a completely
+unrelated page (e.g. a YouTube video that happened to mention the company's
+name) to the wrong company. discover_email() (the snippet-based AI
+classifier) is kept as a fallback for when the website fetch finds no email
+at all.
 
 Same official-email-only filter rule as the main system: only email_type
 GENERIC or FOUNDER are ever accepted as an outreach recipient — see
@@ -26,10 +26,12 @@ from __future__ import annotations
 
 import logging
 import re
+from typing import Literal
 
 import httpx
+from pydantic import BaseModel
 
-from app.integrations.openai_client import structured_completion
+from app.job_outreach.ai_client import structured_completion
 from app.integrations.web_search import search
 
 logger = logging.getLogger("job_outreach.email_discovery")
@@ -52,16 +54,19 @@ def _is_junk_email(email: str) -> bool:
     lowered = email.lower()
     return any(p in lowered for p in _JUNK_EMAIL_PATTERNS)
 
-COMPANY_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "official_website": {"type": ["string", "null"]},
-        "domain": {"type": ["string", "null"]},
-        "website_confidence": {"type": "number"},
-    },
-    "required": ["official_website", "domain", "website_confidence"],
-    "additionalProperties": False,
-}
+
+class CompanyResearch(BaseModel):
+    official_website: str | None
+    domain: str | None
+    website_confidence: float
+
+
+class EmailDiscovery(BaseModel):
+    email: str | None
+    email_type: Literal["GENERIC", "HR", "FOUNDER", "DEPARTMENT", "UNKNOWN"]
+    email_source_url: str | None
+    email_confidence: float
+
 
 COMPANY_SYSTEM_PROMPT = """You research a company using ONLY the provided search result
 snippets (title, link, snippet for several web search hits about the
@@ -71,21 +76,9 @@ name. Do not fabricate a website or domain that isn't supported by the
 snippets. If uncertain, set the field to null and lower
 website_confidence. website_confidence is 0-1."""
 
-EMAIL_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "email": {"type": ["string", "null"]},
-        "email_type": {"type": "string", "enum": ["GENERIC", "HR", "FOUNDER", "DEPARTMENT", "UNKNOWN"]},
-        "email_source_url": {"type": ["string", "null"]},
-        "email_confidence": {"type": "number"},
-    },
-    "required": ["email", "email_type", "email_source_url", "email_confidence"],
-    "additionalProperties": False,
-}
-
 EMAIL_SYSTEM_PROMPT = """You extract a genuinely publicly-visible official business email address
-for a company from the provided search snippets only (e.g. text from a
-Contact Us page, About page, or footer that a search engine has indexed).
+for a company from the provided text only (either search snippets, or real
+email addresses actually found on the company's own website).
 Rules:
 - NEVER invent or guess an email address (e.g. never construct
   info@<domain> unless that literal string appears in the source text).
@@ -102,7 +95,7 @@ Rules:
   business contact."""
 
 
-def research_company(company_name: str, city: str | None, search_snippets: list[dict]) -> dict | None:
+def research_company(company_name: str, city: str | None, search_snippets: list[dict]) -> CompanyResearch | None:
     context = "\n".join(
         f"- Title: {s['title']}\n  URL: {s['link']}\n  Snippet: {s['snippet']}" for s in search_snippets
     ) or "(no search results found)"
@@ -113,12 +106,11 @@ def research_company(company_name: str, city: str | None, search_snippets: list[
     return structured_completion(
         system_prompt=COMPANY_SYSTEM_PROMPT,
         user_prompt=user_prompt,
-        schema=COMPANY_SCHEMA,
-        schema_name="job_outreach_company_research",
+        response_model=CompanyResearch,
     )
 
 
-def discover_email(company_name: str, domain: str | None, search_snippets: list[dict]) -> dict | None:
+def discover_email(company_name: str, domain: str | None, search_snippets: list[dict]) -> EmailDiscovery | None:
     context = "\n".join(
         f"- Title: {s['title']}\n  URL: {s['link']}\n  Snippet: {s['snippet']}" for s in search_snippets
     ) or "(no search results found)"
@@ -129,8 +121,7 @@ def discover_email(company_name: str, domain: str | None, search_snippets: list[
     return structured_completion(
         system_prompt=EMAIL_SYSTEM_PROMPT,
         user_prompt=user_prompt,
-        schema=EMAIL_SCHEMA,
-        schema_name="job_outreach_email_discovery",
+        response_model=EmailDiscovery,
     )
 
 
@@ -170,14 +161,13 @@ async def fetch_emails_from_website(domain: str) -> list[str]:
     return found
 
 
-def classify_emails(company_name: str, domain: str | None, candidate_emails: list[str]) -> dict | None:
+def classify_emails(company_name: str, domain: str | None, candidate_emails: list[str]) -> EmailDiscovery | None:
     """AI-classifies a short list of emails actually found on the company's
-    own website (via fetch_emails_from_website) into the same
-    {email, email_type, email_source_url, email_confidence} shape as
-    discover_email(), picking the single best one to use as the outreach
-    recipient. Far more reliable than discover_email() because every
-    candidate is a real address that was actually present on the company's
-    own site, not inferred from a search snippet."""
+    own website (via fetch_emails_from_website) into an EmailDiscovery,
+    picking the single best one to use as the outreach recipient. Far more
+    reliable than discover_email() because every candidate is a real address
+    that was actually present on the company's own site, not inferred from a
+    search snippet."""
     if not candidate_emails:
         return None
     listing = "\n".join(f"- {e}" for e in candidate_emails)
@@ -189,8 +179,7 @@ def classify_emails(company_name: str, domain: str | None, candidate_emails: lis
     return structured_completion(
         system_prompt=EMAIL_SYSTEM_PROMPT,
         user_prompt=user_prompt,
-        schema=EMAIL_SCHEMA,
-        schema_name="job_outreach_email_classification",
+        response_model=EmailDiscovery,
     )
 
 

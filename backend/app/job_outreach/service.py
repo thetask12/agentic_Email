@@ -15,7 +15,7 @@ from app.job_outreach.repositories import (
     job_listing_repo, company_repo, email_queue_repo, suppression_repo,
     search_run_repo, activity_log_repo,
 )
-from app.job_outreach.search import run_search, guess_company_name_from_title
+from app.job_outreach.search import run_search, guess_company_name_from_title, PLATFORM_DOMAINS
 from app.job_outreach.email_discovery import (
     research_company, discover_email, gather_company_snippets, gather_contact_snippets,
     fetch_emails_from_website, classify_emails,
@@ -55,6 +55,20 @@ def _root_domain(value: str) -> str:
     if v.startswith("www."):
         v = v[4:]
     return v
+
+
+def _is_platform_domain(domain: str | None) -> bool:
+    """True if `domain` IS one of the 9 job platforms this module searches
+    (see search.py PLATFORM_DOMAINS) rather than a real employer's own site.
+    research_company() can occasionally misidentify a job-board's own page
+    (e.g. naukri.com itself) as the "official website" when the company name
+    it was given is unreliable (an "Unknown (<url>)" placeholder) — this
+    catches that case so we never treat naukri.com as a company's contact
+    domain."""
+    if not domain:
+        return False
+    root = _root_domain(domain)
+    return any(root == _root_domain(platform_domain) for platform_domain in PLATFORM_DOMAINS.values())
 
 
 def _email_domain_matches_company(email: str, company_domain: str | None) -> bool:
@@ -201,8 +215,20 @@ async def run_one_cycle() -> dict:
                 try:
                     company_snippets = await gather_company_snippets(company_name, city)
                     research = research_company(company_name, city, company_snippets)
-                    domain = (research or {}).get("domain")
-                    website = (research or {}).get("official_website")
+                    domain = research.domain if research else None
+                    website = research.official_website if research else None
+
+                    # A job-board's own domain (naukri.com, indeed.com, ...)
+                    # is never a real employer's contact domain — this can
+                    # happen when research_company() was given an unreliable
+                    # "Unknown (<url>)" name and misidentified the listing
+                    # platform itself as the "official website". Treat it the
+                    # same as finding no domain at all.
+                    if _is_platform_domain(domain):
+                        logger.info("JOB_OUTREACH: ignoring platform domain %r returned as research for %r",
+                                    domain, company_name)
+                        domain = None
+                        website = None
 
                     # Primary path: read the company's own website directly
                     # (homepage/contact/about/careers) and classify whatever
@@ -216,7 +242,7 @@ async def run_one_cycle() -> dict:
                         website_emails = await fetch_emails_from_website(domain)
                         if website_emails:
                             discovered = classify_emails(company_name, domain, website_emails)
-                    if not discovered or not (discovered or {}).get("email"):
+                    if not discovered or not discovered.email:
                         contact_snippets = await gather_contact_snippets(company_name, domain)
                         discovered = discover_email(company_name, domain, contact_snippets)
                 except Exception:
@@ -224,8 +250,8 @@ async def run_one_cycle() -> dict:
                     await company_repo.update(company["company_id"], {"research_status": "FAILED"})
                     continue
 
-                email_type = (discovered or {}).get("email_type") or "UNKNOWN"
-                email = (discovered or {}).get("email")
+                email_type = discovered.email_type if discovered else "UNKNOWN"
+                email = discovered.email if discovered else None
                 domain_mismatch = bool(email) and not _email_domain_matches_company(email, domain)
 
                 if not email or email_type not in ACCEPTED_EMAIL_TYPES or domain_mismatch:
@@ -254,8 +280,8 @@ async def run_one_cycle() -> dict:
                 await company_repo.update(company["company_id"], {
                     "official_website": website or "", "domain": domain or "",
                     "contact_email": email, "email_type": email_type,
-                    "email_source_url": (discovered or {}).get("email_source_url") or "",
-                    "email_confidence": (discovered or {}).get("email_confidence") or 0,
+                    "email_source_url": (discovered.email_source_url if discovered else "") or "",
+                    "email_confidence": (discovered.email_confidence if discovered else 0) or 0,
                     "research_status": "COMPLETED",
                 })
 
