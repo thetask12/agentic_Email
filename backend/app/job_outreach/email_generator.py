@@ -23,24 +23,20 @@ logger = logging.getLogger("job_outreach.email_generator")
 
 SUBJECT_TEMPLATE = "Application for {job_title}"
 
-# Short, plain-text application email. Highlights are separate short
-# paragraphs (their own blank-line-separated block) instead of "-"-prefixed
-# bullets, so it doesn't read as a templated list, but still breaks the
-# background/highlights apart for skimmability. Every paragraph is kept on
-# one long source line (no manual mid-sentence line breaks) so the
-# recipient's own mail client wraps it naturally. No inline images, no
-# banners, no signature GIF (see "Email content rules").
+# Short, plain-text application email. The three highlights after "Here's
+# why I could be a good fit:" are "-"-prefixed bullets. Every other
+# paragraph is kept on one long source line (no manual mid-sentence line
+# breaks) so the recipient's own mail client wraps it naturally. No inline
+# images, no banners, no signature GIF (see "Email content rules").
 BODY_TEMPLATE = """Dear Hiring Team,
 
 I'm an Agentic AI Developer with close to a year of hands-on experience building production multi-agent LLM systems, including LangChain, LangGraph, RAG pipelines, and FastAPI, all deployed end-to-end on Docker. I started as an AI intern and was promoted to a full-time Agentic AI Developer and AI Department Head within a year.
 
 I'm looking for a role as {job_title} at your company. Here's why I could be a good fit:
 
-I design and ship production agentic AI systems, including multi-agent orchestration, tool and function calling, and RAG with vector search using Qdrant and pgvector, not just prototypes.
-
-I'm currently leading AI development as Department Head, which includes owning AI hiring and technical evaluation.
-
-I'm comfortable across the full stack, from FastAPI and Pydantic backends to React frontends and MLOps with Docker, CI/CD, and model serving.
+- I design and ship production agentic AI systems, including multi-agent orchestration, tool and function calling, and RAG with vector search using Qdrant and pgvector, not just prototypes.
+- I'm currently leading AI development as Department Head, which includes owning AI hiring and technical evaluation.
+- I'm comfortable across the full stack, from FastAPI and Pydantic backends to React frontends and MLOps with Docker, CI/CD, and model serving.
 
 I've attached my resume with full experience and project details. Would love to connect and discuss how I could contribute to your team.
 
