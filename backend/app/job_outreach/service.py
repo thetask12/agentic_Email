@@ -127,8 +127,13 @@ async def run_one_cycle() -> dict:
                     break
 
                 company_name = guess_company_name_from_title(raw.title)
+                name_known = bool(company_name)
                 if not company_name:
-                    continue
+                    # Company name couldn't be confidently extracted — don't
+                    # drop the lead, just dedupe by job URL instead of name
+                    # (there's no name to dedupe by) and use a generic "Dear
+                    # Team," greeting in the email (see email_generator.py).
+                    company_name = f"Unknown ({raw.url})" if raw.url else f"Unknown ({new_id('unk')})"
                 normalized = _normalize(company_name)
                 if await _already_seen_company(normalized):
                     continue
@@ -196,7 +201,7 @@ async def run_one_cycle() -> dict:
 
                 generated = generate_application_email(
                     job_title=job_title, sender_email=settings.job_outreach_sender_email,
-                    company_name=company_name,
+                    company_name=company_name if name_known else "",
                 )
                 await email_queue_repo.create({
                     "queue_id": new_id("queue"), "company_id": company["company_id"],

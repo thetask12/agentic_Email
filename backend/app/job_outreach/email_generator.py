@@ -5,10 +5,10 @@ and the job title being applied for; the body itself is a fixed template,
 not AI-generated per company. The resume PDF itself is attached by Apps
 Script (EmailSender.gs, via RESUME_DRIVE_FILE_ID), not by this backend.
 
-A company whose name could not be confidently determined is never reached
-here at all — service.py skips/drops that lead before generating an email,
-so the "company_name missing" fallback below is a safety net, not a normal
-path.
+A lead whose company name could not be confidently determined is still
+emailed (not dropped) — it just gets a generic "Dear Hiring Team,"
+greeting instead of "Dear {company_name} Team," (see
+generate_application_email).
 """
 from __future__ import annotations
 
@@ -17,9 +17,11 @@ from app.job_outreach.config import get_job_outreach_settings
 SUBJECT_TEMPLATE = "Application: {job_title}"
 
 # Short, plain-text application email. No inline images, no banners, no
-# signature GIF (see "Email content rules"). No employer name is ever
-# disclosed — this is the exact copy agreed with the candidate.
-BODY_TEMPLATE = """Dear {company_name} Team,
+# signature GIF (see "Email content rules"). This is the exact copy agreed
+# with the candidate — {greeting} is filled in as either "Dear {company}
+# Team," or, when no company name could be confidently determined, the
+# generic "Dear Hiring Team,".
+BODY_TEMPLATE = """{greeting}
 
 I'm an Agentic AI Developer with close to a year of hands-on experience
 building production multi-agent LLM systems — LangChain, LangGraph, RAG
@@ -54,13 +56,16 @@ def generate_application_email(*, job_title: str, sender_email: str, company_nam
     this module's own sender identity (JOB_OUTREACH_SENDER_EMAIL) used only
     in the signature line — Apps Script decides the actual Gmail From
     address (always whichever account authorized its triggers). `company_name`
-    is used only in the greeting ("Dear {company_name} Team,") — falls back to
-    a generic "Hiring Team" if not provided/blank."""
+    controls the greeting: "Dear {company_name} Team," when known, or the
+    generic "Dear Hiring Team," when blank/not provided (a lead is never
+    dropped just because its company name couldn't be determined)."""
     settings = get_job_outreach_settings()
+    clean_name = company_name.strip() if company_name and company_name.strip() else ""
+    greeting = f"Dear {clean_name} Team," if clean_name else "Dear Hiring Team,"
     subject = SUBJECT_TEMPLATE.format(job_title=job_title)
     body = BODY_TEMPLATE.format(
         job_title=job_title,
-        company_name=company_name.strip() if company_name and company_name.strip() else "Hiring",
+        greeting=greeting,
         candidate_name=settings.job_outreach_candidate_name,
         candidate_phone=settings.job_outreach_candidate_phone,
         candidate_email=sender_email,
