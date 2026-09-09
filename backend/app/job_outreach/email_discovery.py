@@ -125,19 +125,36 @@ def discover_email(company_name: str, domain: str | None, search_snippets: list[
     )
 
 
-async def fetch_emails_from_website(domain: str) -> list[str]:
+class WebsiteFetchResult(BaseModel):
+    """Not an AI output — a plain container for fetch_emails_from_website()'s
+    two kinds of findings: emails a regex could confidently extract, and the
+    raw page text itself (for a page where a regex found nothing, e.g. a
+    large corporate site that only exposes a contact form, an obfuscated
+    address like "info [at] company [dot] com", or an email embedded in a
+    way the regex doesn't match). Keeping both lets classify_emails() fall
+    back to reading the actual page text with an AI model instead of giving
+    up the moment the regex comes back empty."""
+    model_config = {"arbitrary_types_allowed": True}
+    emails: list[str]
+    page_texts: dict[str, str]
+
+
+async def fetch_emails_from_website(domain: str) -> WebsiteFetchResult:
     """Fetches the company's own homepage plus a few common pages
-    (/contact, /about, /careers) and extracts any visible email addresses
-    via regex. Plain public GET requests only — no login, no scraping behind
-    auth/CAPTCHA, same rule as everywhere else in this system. Returns a
-    deduplicated list (order preserved, homepage-first) of candidate emails,
-    or an empty list if the site is unreachable or none are found — never
-    raises, since a single company's site being down shouldn't crash the
-    whole search cycle."""
+    (/contact, /about, /careers), extracts any visible email addresses via
+    regex, and also keeps the raw page text for each successfully-fetched
+    page (used as a fallback input to classify_emails() when the regex finds
+    nothing — many larger corporate sites only expose a contact form or an
+    obfuscated address that a plain regex won't catch, but an AI reading the
+    actual page text often still can). Plain public GET requests only — no
+    login, no scraping behind auth/CAPTCHA, same rule as everywhere else in
+    this system. Never raises; a single company's site being unreachable
+    just means empty results, not a crashed search cycle."""
     if not domain:
-        return []
+        return WebsiteFetchResult(emails=[], page_texts={})
     found: list[str] = []
     seen: set[str] = set()
+    page_texts: dict[str, str] = {}
     async with httpx.AsyncClient(timeout=10, follow_redirects=True,
                                   headers={"User-Agent": "Mozilla/5.0 (compatible; JobOutreachBot/1.0)"}) as client:
         for path in _CONTACT_PATHS:
@@ -149,6 +166,7 @@ async def fetch_emails_from_website(domain: str) -> list[str]:
                     continue
                 if resp.status_code >= 400:
                     continue
+                page_texts[url] = resp.text[:6000]
                 for match in _EMAIL_RE.findall(resp.text):
                     if _is_junk_email(match) or match.lower() in seen:
                         continue
@@ -157,24 +175,44 @@ async def fetch_emails_from_website(domain: str) -> list[str]:
                 break  # https worked (or returned a real response) — skip http fallback for this path
             if len(found) >= 5:
                 break  # enough candidates gathered — no need to keep crawling more pages
-    logger.info("JOB_OUTREACH_WEBSITE_FETCH domain=%r emails_found=%d", domain, len(found))
-    return found
+    logger.info("JOB_OUTREACH_WEBSITE_FETCH domain=%r emails_found=%d pages_fetched=%d",
+                domain, len(found), len(page_texts))
+    return WebsiteFetchResult(emails=found, page_texts=page_texts)
 
 
-def classify_emails(company_name: str, domain: str | None, candidate_emails: list[str]) -> EmailDiscovery | None:
-    """AI-classifies a short list of emails actually found on the company's
-    own website (via fetch_emails_from_website) into an EmailDiscovery,
-    picking the single best one to use as the outreach recipient. Far more
-    reliable than discover_email() because every candidate is a real address
-    that was actually present on the company's own site, not inferred from a
-    search snippet."""
-    if not candidate_emails:
+def classify_emails(company_name: str, domain: str | None, fetch_result: WebsiteFetchResult) -> EmailDiscovery | None:
+    """AI-classifies the results of fetch_emails_from_website() into a
+    single EmailDiscovery — the best email to use as the outreach recipient.
+
+    If the regex found candidate emails, those are listed as the primary
+    input (every candidate is a real address that was actually present on
+    the company's own site, not inferred from a search snippet — far more
+    reliable than discover_email()).
+
+    If the regex found nothing at all but pages were still fetched, the raw
+    page text itself is given to the model instead — many larger corporate
+    sites only expose a contact form or an obfuscated address ("info [at]
+    company [dot] com") that a plain regex won't catch, but a model reading
+    the actual page text can often still recognize. Returns None only if no
+    pages were fetched at all (site unreachable/no domain)."""
+    if not fetch_result.page_texts:
         return None
-    listing = "\n".join(f"- {e}" for e in candidate_emails)
+    if fetch_result.emails:
+        listing = "\n".join(f"- {e}" for e in fetch_result.emails)
+        source_block = f"Email addresses found on this company's own website:\n{listing}"
+    else:
+        pages = "\n\n".join(f"--- {url} ---\n{text}" for url, text in fetch_result.page_texts.items())
+        source_block = (
+            "No email address was found by a plain pattern match, but here is the raw "
+            f"text of this company's own contact/about/careers pages — look carefully for "
+            f"an email that may be obfuscated or written unusually (e.g. 'name [at] domain "
+            f"[dot] com'):\n\n{pages}"
+        )
     user_prompt = (
         f"Company name: {company_name}\nDomain: {domain or 'unknown'}\n\n"
-        f"Email addresses found on this company's own website:\n{listing}\n\n"
-        f"Pick the single best one to use as an outreach contact and classify it."
+        f"{source_block}\n\nPick the single best email to use as an outreach contact and classify it. "
+        f"If genuinely no email is present anywhere in this text, return email=null, "
+        f"email_type=\"UNKNOWN\", email_confidence=0."
     )
     return structured_completion(
         system_prompt=EMAIL_SYSTEM_PROMPT,

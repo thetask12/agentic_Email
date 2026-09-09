@@ -262,9 +262,14 @@ async def run_one_cycle() -> dict:
                     # visible email at all.
                     discovered = None
                     if domain:
-                        website_emails = await fetch_emails_from_website(domain)
-                        if website_emails:
-                            discovered = classify_emails(company_name, domain, website_emails)
+                        fetch_result = await fetch_emails_from_website(domain)
+                        # classify_emails() itself falls back to reading the
+                        # raw page text when the regex found nothing (e.g. a
+                        # large corporate site with only a contact form or an
+                        # obfuscated address) — only skip it entirely if no
+                        # page could be fetched at all.
+                        if fetch_result.page_texts:
+                            discovered = classify_emails(company_name, domain, fetch_result)
                     if not discovered or not discovered.email:
                         contact_snippets = await gather_contact_snippets(company_name, domain)
                         discovered = discover_email(company_name, domain, contact_snippets)
