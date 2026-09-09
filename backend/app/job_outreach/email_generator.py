@@ -1,14 +1,14 @@
 """
 Builds the short cold-application email for the Job Outreach module — NOT a
-sales pitch, NOT personalized per-company beyond the job title (per
-docs/job-outreach-schema.md "Email content rules": no employer/company name
-is ever disclosed in the body). The resume PDF itself is attached by Apps
+sales pitch. Personalized only by the discovered company name (greeting)
+and the job title being applied for; the body itself is a fixed template,
+not AI-generated per company. The resume PDF itself is attached by Apps
 Script (EmailSender.gs, via RESUME_DRIVE_FILE_ID), not by this backend.
 
-Mirrors the app/agents/email_generation.py pattern (a fixed template
-rendered with a small set of substitutions) rather than an AI-personalized
-pitch — there is deliberately nothing here to personalize: the whole point
-is one short, honest, generic application email sent to many companies.
+A company whose name could not be confidently determined is never reached
+here at all — service.py skips/drops that lead before generating an email,
+so the "company_name missing" fallback below is a safety net, not a normal
+path.
 """
 from __future__ import annotations
 
@@ -27,8 +27,8 @@ pipelines, and FastAPI, deployed end-to-end on Docker. I started as an
 AI intern and was promoted to a full-time Agentic AI Developer and AI
 Department Head within a year.
 
-I came across the {job_title} opening at your company and would like to
-apply. A quick snapshot of my background:
+I'm reaching out directly to apply for a {job_title} role at your company.
+A quick snapshot of my background:
 
 - Design and ship production agentic AI systems — multi-agent
   orchestration, tool/function-calling, RAG with vector search (Qdrant,
