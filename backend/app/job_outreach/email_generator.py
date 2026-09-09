@@ -15,7 +15,11 @@ still used for internal tracking (COMPANIES sheet, dedup) — just not here.
 """
 from __future__ import annotations
 
+import logging
+
 from app.job_outreach.config import get_job_outreach_settings
+
+logger = logging.getLogger("job_outreach.email_generator")
 
 SUBJECT_TEMPLATE = "Application for {job_title}"
 
@@ -48,12 +52,23 @@ def generate_application_email(*, job_title: str, sender_email: str) -> dict:
     address (always whichever account authorized its triggers)."""
     settings = get_job_outreach_settings()
     subject = SUBJECT_TEMPLATE.format(job_title=job_title)
-    body = BODY_TEMPLATE.format(
-        job_title=job_title,
-        candidate_name=settings.job_outreach_candidate_name,
-        candidate_phone=settings.job_outreach_candidate_phone,
-        candidate_email=sender_email,
-        candidate_linkedin=settings.job_outreach_candidate_linkedin,
-        candidate_github=settings.job_outreach_candidate_github,
-    )
+    try:
+        body = BODY_TEMPLATE.format(
+            job_title=job_title,
+            candidate_name=settings.job_outreach_candidate_name,
+            candidate_phone=settings.job_outreach_candidate_phone,
+            candidate_email=sender_email,
+            candidate_linkedin=settings.job_outreach_candidate_linkedin,
+            candidate_github=settings.job_outreach_candidate_github,
+        )
+    except (KeyError, IndexError, ValueError):
+        # A malformed BODY_TEMPLATE (e.g. an unescaped stray "{" or "}" left
+        # over from an edit) would otherwise crash the whole search cycle —
+        # log it loudly so it's never silently swallowed, but still return a
+        # usable email rather than losing the lead entirely.
+        logger.exception(
+            "generate_application_email: BODY_TEMPLATE.format() failed for job_title=%r — "
+            "check BODY_TEMPLATE for a stray/unescaped '{' or '}'", job_title,
+        )
+        body = BODY_TEMPLATE
     return {"subject": subject, "body": body}
