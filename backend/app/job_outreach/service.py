@@ -7,6 +7,7 @@ via SUPPRESSION_LIST + a COMPANIES lookup before ever emailing again).
 from __future__ import annotations
 
 import logging
+import re
 
 from app.job_outreach.config import get_job_outreach_settings
 from app.job_outreach.models import ACCEPTED_EMAIL_TYPES, ROLES, ALL_LOCATIONS, INDIA_LOCATIONS
@@ -38,6 +39,35 @@ async def _log_activity(event: str, details: str = "") -> None:
 
 def _normalize(name: str) -> str:
     return "".join(ch for ch in name.lower() if ch.isalnum())
+
+
+def _root_domain(value: str) -> str:
+    """Normalizes a domain/URL/email down to its comparable root, e.g.
+    'https://www.sarvam.ai/careers' -> 'sarvam.ai', 'admin@anshmehra.com' ->
+    'anshmehra.com'. Used only for the email-domain-matches-company-domain
+    sanity check below — never for anything security-sensitive."""
+    v = value.strip().lower()
+    if "@" in v:
+        v = v.split("@", 1)[1]
+    v = re.sub(r"^https?://", "", v)
+    v = v.split("/", 1)[0]
+    if v.startswith("www."):
+        v = v[4:]
+    return v
+
+
+def _email_domain_matches_company(email: str, company_domain: str | None) -> bool:
+    """True if the discovered email's domain matches the company's own
+    researched domain — a mismatch (e.g. a 'sarvam.ai' company matched to an
+    'anshmehra.com' email found via an unrelated page like a YouTube video)
+    means discover_email() likely picked up an unrelated contact, not this
+    company's actual address. If no company_domain was established at all,
+    this can't be checked, so it passes (research_company already failing to
+    find a domain is handled separately — this is just an extra sanity check
+    for when a domain WAS found)."""
+    if not company_domain:
+        return True
+    return _root_domain(email) == _root_domain(company_domain)
 
 
 async def _already_seen_company(normalized_name: str) -> bool:
@@ -182,13 +212,20 @@ async def run_one_cycle() -> dict:
 
                 email_type = (discovered or {}).get("email_type") or "UNKNOWN"
                 email = (discovered or {}).get("email")
+                domain_mismatch = bool(email) and not _email_domain_matches_company(email, domain)
 
-                if not email or email_type not in ACCEPTED_EMAIL_TYPES:
+                if not email or email_type not in ACCEPTED_EMAIL_TYPES or domain_mismatch:
                     # Same official-email-only filter as the main system:
                     # HR/DEPARTMENT/UNKNOWN (or no email at all) -> drop the
-                    # company, same as "no email found".
-                    logger.info("JOB_OUTREACH: DROP company=%r reason=non_official_or_missing_email "
-                                "email=%s email_type=%s", company_name, email, email_type)
+                    # company, same as "no email found". Also reject an
+                    # email whose domain doesn't match the company's own
+                    # researched domain — that usually means discover_email()
+                    # picked up an unrelated contact from an off-topic page
+                    # (e.g. a YouTube video mentioning the company), not this
+                    # company's actual address.
+                    reason = "domain_mismatch" if domain_mismatch else "non_official_or_missing_email"
+                    logger.info("JOB_OUTREACH: DROP company=%r reason=%s email=%s email_type=%s domain=%s",
+                                company_name, reason, email, email_type, domain)
                     await company_repo.update(company["company_id"], {
                         "official_website": website or "", "domain": domain or "",
                         "email_type": email_type, "research_status": "NOT_FOUND",

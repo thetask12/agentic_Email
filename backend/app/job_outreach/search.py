@@ -69,13 +69,35 @@ def _is_platform_name(candidate: str) -> bool:
     return normalized in _PLATFORM_NAMES
 
 
+# Words that show up in a job-listing-aggregator page TITLE rather than a
+# real company name, e.g. "AI Engineer Jobs In Bangalore" or "Best AI
+# Developer Careers 2026" — a search result whose title is just a generic
+# search-results-page description, not a specific employer's posting.
+# Matching one of these means "don't trust this as a company name", not
+# "this job isn't real" — the listing itself may still be legitimate.
+_GENERIC_LISTING_WORDS = {
+    "jobs", "job", "careers", "career", "hiring", "openings", "opening",
+    "vacancy", "vacancies", "listings", "listing", "search", "results",
+}
+
+
+def _looks_like_generic_listing_title(candidate: str) -> bool:
+    """True if `candidate` reads like an aggregator page title (mentions
+    role/location/generic-jobs words) rather than a specific company name."""
+    words = set(re.findall(r"[a-z]+", candidate.lower()))
+    return bool(words & _GENERIC_LISTING_WORDS)
+
+
 def guess_company_name_from_title(title: str) -> str | None:
     """Best-effort extraction of a company name from a search result title,
     e.g. 'AI Engineer - Acme Labs - LinkedIn' -> 'Acme Labs'. Heuristic only;
-    never returns a job-board/platform name."""
+    never returns a job-board/platform name or a generic listing-page title
+    (e.g. 'AI Engineer Jobs In Bangalore') that isn't actually a company."""
     parts = [p.strip() for p in re.split(r"[-|–]", title) if p.strip()]
     for candidate in parts[1:]:
         if _is_platform_name(candidate):
+            continue
+        if _looks_like_generic_listing_title(candidate):
             continue
         if 2 < len(candidate) < 80:
             return candidate
