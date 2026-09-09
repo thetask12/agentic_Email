@@ -278,8 +278,17 @@ async def run_one_cycle() -> dict:
                     await company_repo.update(company["company_id"], {"research_status": "FAILED"})
                     continue
 
-                email_type = discovered.email_type if discovered else "UNKNOWN"
                 email = discovered.email if discovered else None
+                # Force email_type UNKNOWN whenever there's no actual email —
+                # EMAIL_SYSTEM_PROMPT tells the model to do this itself, but
+                # it doesn't always comply (a real live case: Luxoft's site
+                # explicitly says "for job opportunities visit
+                # career.luxoft.com" with no email anywhere, yet the model
+                # returned email_type=DEPARTMENT alongside email=null). The
+                # accept/reject decision below is unaffected either way
+                # (`not email` already rejects), this just keeps the
+                # COMPANIES sheet's email_type column meaningful to read.
+                email_type = (discovered.email_type if discovered else "UNKNOWN") if email else "UNKNOWN"
                 domain_mismatch = bool(email) and not _email_domain_matches_company(email, domain)
 
                 if not email or email_type not in ACCEPTED_EMAIL_TYPES or domain_mismatch:
