@@ -15,7 +15,10 @@ from app.job_outreach.repositories import (
     job_listing_repo, company_repo, email_queue_repo, suppression_repo,
     search_run_repo, activity_log_repo,
 )
-from app.job_outreach.search import run_search, guess_company_name_from_title, PLATFORM_DOMAINS
+from app.job_outreach.search import (
+    run_search, guess_company_name_from_title, fetch_raw_page_content, PLATFORM_DOMAINS,
+)
+from app.job_outreach.job_extraction import extract_company_name
 from app.job_outreach.email_discovery import (
     research_company, discover_email, gather_company_snippets, gather_contact_snippets,
     fetch_emails_from_website, classify_emails,
@@ -181,12 +184,29 @@ async def run_one_cycle() -> dict:
                     break
 
                 company_name = guess_company_name_from_title(raw.title)
+                if not company_name:
+                    # The free title-splitting heuristic failed (e.g. a
+                    # generic listing-page title like "AI Engineer Jobs In
+                    # Bangalore"). Fall back to an AI pass over the page's
+                    # actual content — the title being generic doesn't mean
+                    # the page itself is; it may still name one specific
+                    # employer's posting.
+                    try:
+                        page_content = await fetch_raw_page_content(f'"{raw.title}" {raw.url}')
+                        extraction = extract_company_name(raw.url, page_content or raw.snippet)
+                        if extraction and extraction.company_name and not extraction.is_generic_listing_page:
+                            company_name = extraction.company_name
+                    except Exception:
+                        logger.exception("JOB_OUTREACH: AI company-name extraction failed for url=%r", raw.url)
                 name_known = bool(company_name)
                 if not company_name:
-                    # Company name couldn't be confidently extracted — don't
-                    # drop the lead, just dedupe by job URL instead of name
-                    # (there's no name to dedupe by) and use a generic "Dear
-                    # Team," greeting in the email (see email_generator.py).
+                    # Still unknown after both the heuristic and the AI
+                    # fallback — this is genuinely a generic listing page
+                    # with no single named employer. Don't drop the lead,
+                    # just dedupe by job URL instead of name (there's no name
+                    # to dedupe by); the email still goes out with the
+                    # generic "Dear Hiring Team," greeting (see
+                    # email_generator.py) since there's no real name to use.
                     company_name = f"Unknown ({raw.url})" if raw.url else f"Unknown ({new_id('unk')})"
                 normalized = _normalize(company_name)
                 if await _already_seen_company(normalized):

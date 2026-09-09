@@ -20,6 +20,9 @@ import logging
 import re
 from dataclasses import dataclass
 
+import httpx
+
+from app.config.settings import get_settings
 from app.integrations.web_search import search, SearchResult
 from app.job_outreach.models import INDIA_LOCATIONS
 
@@ -102,6 +105,42 @@ def guess_company_name_from_title(title: str) -> str | None:
         if 2 < len(candidate) < 80:
             return candidate
     return None
+
+
+async def fetch_raw_page_content(query: str) -> str:
+    """Issues a single Tavily search with include_raw_content=true and
+    returns the first result's full page text (or "" if unavailable) —
+    used as the input to an AI company-name-extraction pass
+    (job_extraction.extract_company_name) when the cheap title-splitting
+    heuristic (guess_company_name_from_title) fails, e.g. for a listing
+    page whose search-result TITLE is generic ("AI Engineer Jobs In
+    Bangalore") but whose actual page body still names a specific employer
+    for a specific posting. Same Tavily-index-only, no-login/no-scrape rule
+    as everywhere else — this is a plain search API call, not a raw HTTP
+    fetch of the page ourselves."""
+    settings = get_settings()
+    if not settings.tavily_configured:
+        return ""
+    payload = {
+        "api_key": settings.tavily_api_key,
+        "query": query,
+        "search_depth": "basic",
+        "max_results": 1,
+        "include_answer": False,
+        "include_raw_content": True,
+    }
+    try:
+        async with httpx.AsyncClient(timeout=20) as client:
+            resp = await client.post("https://api.tavily.com/search", json=payload)
+            if resp.status_code >= 400:
+                return ""
+            data = resp.json()
+    except httpx.HTTPError:
+        return ""
+    items = data.get("results", []) or []
+    if not items:
+        return ""
+    return (items[0].get("raw_content") or items[0].get("content") or "")[:4000]
 
 
 def _location_clause(city: str) -> str:
