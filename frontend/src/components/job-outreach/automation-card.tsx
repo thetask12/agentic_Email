@@ -137,7 +137,7 @@ export function JobOutreachAutomationCard() {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Button type="button" variant="primary" onClick={handleStart} disabled={starting || running}>
             {starting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
             Start Automation
