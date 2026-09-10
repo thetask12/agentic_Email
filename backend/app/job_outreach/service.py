@@ -34,6 +34,36 @@ from app.utils.time_utils import iso_now
 
 logger = logging.getLogger("job_outreach.service")
 
+# Hard exclusion: the candidate's own current employer must NEVER receive an
+# outreach email under any circumstances — not because it was "already
+# applied to", but because it would be genuinely inappropriate for a
+# personal job-application tool to email its own operator's employer.
+# Checked against both the researched domain/email and the raw company name
+# (in case a search result surfaces the company by name before any
+# domain/email has even been discovered), so it's excluded at every possible
+# point in the pipeline, not just the final accept/reject step.
+_EXCLUDED_DOMAINS = {"botivate.in"}
+_EXCLUDED_EMAILS = {"info@botivate.in", "hr@botivate.in"}
+_EXCLUDED_NAME_SUBSTRING = "botivate"
+
+
+def _is_excluded_company(company_name: str) -> bool:
+    return _EXCLUDED_NAME_SUBSTRING in company_name.lower()
+
+
+def _is_excluded_domain(domain: str | None) -> bool:
+    if not domain:
+        return False
+    root = _root_domain(domain)
+    return root in _EXCLUDED_DOMAINS or root.endswith("." + next(iter(_EXCLUDED_DOMAINS)))
+
+
+def _is_excluded_email(email: str | None) -> bool:
+    if not email:
+        return False
+    lowered = email.lower()
+    return lowered in _EXCLUDED_EMAILS or _is_excluded_domain(_root_domain(lowered))
+
 
 async def _log_activity(event: str, details: str = "") -> None:
     await activity_log_repo.create({
@@ -211,6 +241,9 @@ async def run_one_cycle() -> dict:
                     logger.info("JOB_OUTREACH: SKIP url=%r reason=no_company_name_found "
                                 "(generic listing/category page)", raw.url)
                     continue
+                if _is_excluded_company(company_name):
+                    logger.info("JOB_OUTREACH: SKIP company=%r reason=excluded_employer", company_name)
+                    continue
                 normalized = _normalize(company_name)
                 if await _already_seen_company(normalized):
                     continue
@@ -253,6 +286,20 @@ async def run_one_cycle() -> dict:
                         domain = None
                         website = None
 
+                    if _is_excluded_domain(domain):
+                        logger.info("JOB_OUTREACH: DROP company=%r reason=excluded_employer_domain domain=%r",
+                                    company_name, domain)
+                        await company_repo.update(company["company_id"], {
+                            "official_website": website or "", "domain": domain or "",
+                            "research_status": "NOT_FOUND",
+                        })
+                        await suppression_repo.create({
+                            "suppression_id": new_id("suppression"), "company_id": company["company_id"],
+                            "company_name": normalized, "domain": domain or "", "reason": "MANUAL",
+                            "created_at": iso_now(),
+                        })
+                        continue
+
                     # Primary path: read the company's own website directly
                     # (homepage/contact/about/careers) and classify whatever
                     # real emails are actually published there — far more
@@ -290,8 +337,14 @@ async def run_one_cycle() -> dict:
                 # COMPANIES sheet's email_type column meaningful to read.
                 email_type = (discovered.email_type if discovered else "UNKNOWN") if email else "UNKNOWN"
                 domain_mismatch = bool(email) and not _email_domain_matches_company(email, domain)
+                # Last-line safety net: even if a Botivate address slipped
+                # through as some OTHER company's "discovered" email (it
+                # shouldn't, given the name/domain checks earlier, but this
+                # is cheap insurance against ever actually queuing a send to
+                # the candidate's own employer), reject it here too.
+                is_excluded = _is_excluded_email(email) or _is_excluded_company(company_name)
 
-                if not email or email_type not in ACCEPTED_EMAIL_TYPES or domain_mismatch:
+                if not email or email_type not in ACCEPTED_EMAIL_TYPES or domain_mismatch or is_excluded:
                     # Same official-email-only filter as the main system:
                     # HR/DEPARTMENT/UNKNOWN (or no email at all) -> drop the
                     # company, same as "no email found". Also reject an
@@ -299,8 +352,10 @@ async def run_one_cycle() -> dict:
                     # researched domain — that usually means discover_email()
                     # picked up an unrelated contact from an off-topic page
                     # (e.g. a YouTube video mentioning the company), not this
-                    # company's actual address.
-                    reason = "domain_mismatch" if domain_mismatch else "non_official_or_missing_email"
+                    # company's actual address. And always reject the
+                    # candidate's own current employer (see _is_excluded_*).
+                    reason = "excluded_employer" if is_excluded else (
+                        "domain_mismatch" if domain_mismatch else "non_official_or_missing_email")
                     logger.info("JOB_OUTREACH: DROP company=%r reason=%s email=%s email_type=%s domain=%s",
                                 company_name, reason, email, email_type, domain)
                     await company_repo.update(company["company_id"], {
